@@ -25,7 +25,7 @@
     ],
     "web_accessible_resources": [
         {
-            "resources": ["content.html"],
+            "resources": ["content.html", "content-style.css"],
             "matches": [
                 "http://*/*",
                 "https://*/*"

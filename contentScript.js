@@ -113,28 +113,47 @@ const _invokeColorPalet = (elementName, event, inputColor = 'rgba(0,0,0,0)', inp
 }
 
 const _invokeTextPalet = (event) => {
+    //get current styles
+    const eventStyles = getComputedStyle(event);
+    
+    //main selector for text operations
     const textInputContainerPalet = document.querySelector("#inspex-text-palet");
-    const textInputPalet = document.querySelector("#inspex-text-name");
-    const textInputFontSizePalet = document.querySelector("#inspex-font-size-palet");
 
+    //on text change 
+    const textInputPalet = document.querySelector("#inspex-text-name");
     let text = event.innerHTML || event?.innerText;
     textInputPalet.value = extractInnerText(text);
     textInputPalet.value != "" ? textInputContainerPalet.style.display = "block" : "";
-
-    const eventStyles = getComputedStyle(event);
-    const inputColor = eventStyles["color"];
-    const inputFontSize = eventStyles["font-size"];
-
-    textInputFontSizePalet.value = inputFontSize;
-    textInputFontSizePalet.addEventListener("input", (e)=>{
-            event.style.fontSize = `${e.target.value} !important`;
-    })
-
-    _invokeColorPalet("#inspex-text-color-editor", event, inputColor, "text-color");
-    
+    //event listner for text change
     textInputPalet.addEventListener("input", (e)=>{
         event.innerHTML = e.target.value;
     })
+
+    //on text color change
+    const inputColor = eventStyles["color"];
+    _invokeColorPalet("#inspex-text-color-editor", event, inputColor, "text-color");
+
+    //on font size change
+    const textInputFontSizePalet = document.querySelector("#inspex-font-size-palet");
+    const textInputFontUnitDropdown = document.querySelector("#inspex-font-size-dropdown");
+
+    const inputFontSize = eventStyles["font-size"];
+    let filteredFontSize = extractUnitNumber(inputFontSize);
+
+    //set value
+    textInputFontSizePalet.value = filteredFontSize?.number;
+    //set unit
+    textInputFontUnitDropdown.value = filteredFontSize?.unit;
+
+    //event listener for font size & unit change
+    textInputFontSizePalet.addEventListener("input", (e)=>{
+        filteredFontSize.number = e.target.value
+        event.setAttribute("style", `font-size: ${e.target.value}${filteredFontSize.unit} !important`)
+    })
+    textInputFontUnitDropdown.addEventListener("change", (e)=>{
+        filteredFontSize.unit = e.target.value;
+        event.setAttribute("style", `font-size: ${filteredFontSize.number}${e.target.value} !important`)
+    }) 
 }
 
 //Helper functions
@@ -182,6 +201,20 @@ function extractInnerText(htmlString) {
 
     return innerText;
 }
+
+//extract number and unit from string
+function extractUnitNumber(string) {
+    const matches = string.match(/^(\d+)(\D+)$/);
+
+    if (matches && matches.length === 3) {
+        const number = parseInt(matches[1]); 
+        const unit = matches[2]; 
+        return { number, unit };
+    } else {
+        return { number: 0, unit: '' };
+    }
+}
+
 
 // Function to make the container draggable
 function makeDraggable(element) {

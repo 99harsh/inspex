@@ -4,8 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Color It Content</title>
+    <title>Inspex</title>
+
     <style>
+         .inspex-flex-row {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .inspex-flex-1{
+            flex:1;
+        }
         .inspex-palet {
             margin-bottom: 10px;
         }
@@ -15,24 +25,40 @@
             outline: none !important;
             cursor: pointer;
             border-radius: 5px;
-            padding:5px 0px 5px 40px;
+            padding: 5px 0px 5px 40px;
+            width: 100%;
         }
 
-        .inspex-text-input{
+        .inspex-text-input {
             width: 100%;
             padding: 5px;
             border-color: #ccc;
             border-radius: 5px;
         }
 
-        .inspex-background-palet{
+        .inspex-select-dropdown {
+            padding: 5px 25px 5px 5px;
+            border-color: #ccc;
+            border-radius: 5px;
+            width: 100%;
+        }
+        
+        #inspex-font-size-dropdown{
+            margin-left: 5px;
+        }
+
+        .inspex-background-palet {
             padding-top: 10px;
         }
+
+       
 
         #inspex-text-palet {
             display: none;
             border-bottom: 1px solid #ccc;
         }
+
+
     </style>
 </head>
 
@@ -44,7 +70,8 @@
                     <label for="inspex-text-name">Text</label>
                 </div>
                 <div>
-                    <input class="inspex-text-input" id="inspex-text-name" type="text" placeholder="Text Filed" value="" />
+                    <input class="inspex-text-input" id="inspex-text-name" type="text" placeholder="Text Filed"
+                        value="" />
                 </div>
             </div>
             <div class="inspex-palet">
@@ -60,8 +87,17 @@
                 <div>
                     <label for="inspex-font-size-palet">Font Size</label>
                 </div>
-                <div>
-                    <input class="inspex-text-input" type="text" id="inspex-font-size-palet" />
+                <div class="inspex-flex-row">
+                    <div class="inspex-flex-1">
+                        <input class="inspex-text-input" type="text" id="inspex-font-size-palet" />
+                    </div>
+                    <div class="inspex-flex-1">
+                        <select id="inspex-font-size-dropdown" class="inspex-select-dropdown">
+                            <option value="px">px</option>
+                            <option value="rem">rem</option>
+                            <option value="em">em</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
