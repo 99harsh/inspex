@@ -6,11 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Color It Content</title>
     <style>
-        .color-it-palet {
+        .inspex-palet {
             margin-bottom: 10px;
         }
 
-        .color-it-palet-editor {
+        .inspex-palet-editor {
             border: 1px solid #ccc;
             outline: none !important;
             cursor: pointer;
@@ -18,18 +18,18 @@
             padding:5px 0px 5px 40px;
         }
 
-        .color-it-text-input{
+        .inspex-text-input{
             width: 100%;
             padding: 5px;
             border-color: #ccc;
             border-radius: 5px;
         }
 
-        .color-it-background-palet{
+        .inspex-background-palet{
             padding-top: 10px;
         }
 
-        #color-it-text-palet {
+        #inspex-text-palet {
             display: none;
             border-bottom: 1px solid #ccc;
         }
@@ -37,40 +37,40 @@
 </head>
 
 <body>
-    <div class="color-it-main-container">
-        <div id="color-it-text-palet">
-            <div class="color-it-palet">
+    <div class="inspex-main-container">
+        <div id="inspex-text-palet">
+            <div class="inspex-palet">
                 <div>
-                    <label for="color-it-text-name">Text</label>
+                    <label for="inspex-text-name">Text</label>
                 </div>
                 <div>
-                    <input class="color-it-text-input" id="color-it-text-name" type="text" placeholder="Text Filed" value="" />
+                    <input class="inspex-text-input" id="inspex-text-name" type="text" placeholder="Text Filed" value="" />
                 </div>
             </div>
-            <div class="color-it-palet">
+            <div class="inspex-palet">
                 <div>
-                    <label for="color-it-text-color-editor">Text Color</label>
+                    <label for="inspex-text-color-editor">Text Color</label>
                 </div>
                 <div>
-                    <input id="color-it-text-color-editor" class="color-it-palet-editor"
+                    <input id="inspex-text-color-editor" class="inspex-palet-editor"
                         data-jscolor="{position: 'right'}" />
                 </div>
             </div>
-            <div class="color-it-palet">
+            <div class="inspex-palet">
                 <div>
-                    <label for="color-it-font-size-palet">Font Size</label>
+                    <label for="inspex-font-size-palet">Font Size</label>
                 </div>
                 <div>
-                    <input class="color-it-text-input" type="text" id="color-it-font-size-palet" />
+                    <input class="inspex-text-input" type="text" id="inspex-font-size-palet" />
                 </div>
             </div>
         </div>
-        <div class="color-it-palet color-it-background-palet">
+        <div class="inspex-palet inspex-background-palet">
             <div>
-                <label for="color-it-background-editor">Background</label>
+                <label for="inspex-background-editor">Background</label>
             </div>
             <div>
-                <input id="color-it-background-editor" class="color-it-palet-editor" data-jscolor="{position: 'right'}" />
+                <input id="inspex-background-editor" class="inspex-palet-editor" data-jscolor="{position: 'right'}" />
             </div>
         </div>
     </div>

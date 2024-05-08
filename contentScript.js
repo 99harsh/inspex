@@ -52,7 +52,7 @@ const _init = () => {
 const _invokeStylePalet = (event) => {
 
     //Remove already created DOM
-    const isExist = document.getElementById("color-it-color-palet-container");
+    const isExist = document.getElementById("inspex-color-palet-container");
     if (isExist) {
         isExist.remove();
     }
@@ -62,11 +62,11 @@ const _invokeStylePalet = (event) => {
     const inputColor = eventStyles["background-color"];
     //Create New Div 
     const container = document.createElement('div');
-    container.id = "color-it-color-palet-container"
+    container.id = "inspex-color-palet-container"
 
     //Get and set top & left (dragabble)
-    const top = localStorage.getItem("color-it-top");
-    const left = localStorage.getItem("color-it-left");
+    const top = localStorage.getItem("inspex-top");
+    const left = localStorage.getItem("inspex-left");
 
     //Defaul Box Styling
     container.style.position = 'fixed';
@@ -89,7 +89,7 @@ const _invokeStylePalet = (event) => {
             }
 
             //Init All Palets
-            _invokeColorPalet("#color-it-background-editor", event, inputColor, "background-color")
+            _invokeColorPalet("#inspex-background-editor", event, inputColor, "background-color")
         })
         .catch(error => console.error('Error fetching inner content:', error));
 
@@ -113,9 +113,9 @@ const _invokeColorPalet = (elementName, event, inputColor = 'rgba(0,0,0,0)', inp
 }
 
 const _invokeTextPalet = (event) => {
-    const textInputContainerPalet = document.querySelector("#color-it-text-palet");
-    const textInputPalet = document.querySelector("#color-it-text-name");
-    const textInputFontSizePalet = document.querySelector("#color-it-font-size-palet");
+    const textInputContainerPalet = document.querySelector("#inspex-text-palet");
+    const textInputPalet = document.querySelector("#inspex-text-name");
+    const textInputFontSizePalet = document.querySelector("#inspex-font-size-palet");
 
     let text = event.innerHTML || event?.innerText;
     textInputPalet.value = extractInnerText(text);
@@ -130,7 +130,7 @@ const _invokeTextPalet = (event) => {
             event.style.fontSize = `${e.target.value} !important`;
     })
 
-    _invokeColorPalet("#color-it-text-color-editor", event, inputColor, "text-color");
+    _invokeColorPalet("#inspex-text-color-editor", event, inputColor, "text-color");
     
     textInputPalet.addEventListener("input", (e)=>{
         event.innerHTML = e.target.value;
@@ -209,8 +209,8 @@ function makeDraggable(element) {
         pos4 = e.clientY;
         element.style.top = element.offsetTop - pos2 + 'px';
         element.style.left = element.offsetLeft - pos1 + 'px';
-        localStorage.setItem("color-it-top", element.style.top)
-        localStorage.setItem("color-it-left", element.style.left)
+        localStorage.setItem("inspex-top", element.style.top)
+        localStorage.setItem("inspex-left", element.style.left)
     }
 
     function closeDragElement() {

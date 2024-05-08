@@ -1,6 +1,6 @@
 {
     "manifest_version": 3,
-    "name": "Color It",
+    "name": "Inspex",
     "version": "1.0.1",
     "background": {
         "service_worker": "service_worker.js",
