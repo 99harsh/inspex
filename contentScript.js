@@ -16,6 +16,7 @@ const _init = () => {
             if (event.target) {
                 event.target.style.cursor = "pointer";
                 event.target.style.outline = '1px solid red';
+                
             }
         });
 
@@ -154,6 +155,9 @@ const _invokeTextPalet = (event) => {
         filteredFontSize.unit = e.target.value;
         event.setAttribute("style", `font-size: ${filteredFontSize.number}${e.target.value} !important`)
     }) 
+
+    //Text Align
+    console.log("Align", eventStyles["text-align"])
 }
 
 //Helper functions
