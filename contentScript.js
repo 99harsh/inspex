@@ -7,6 +7,8 @@ window.onload = function () {
 
 const _HTMLTEXTELEMENTS = ["h1", "h2", "h3", "h4", "h5", "span", "a", "button"];
 const _UNITS = ["rem", "px", "em"];
+const _TEXTALIGNMENTS = {start:0, left: 1, center: 2, right: 3, justify: 4};
+const _TEXTDECORATIONS = {none: 0, "line-throgh": 1, underline: 3, "overline underline":4};
 
 const _init = () => {
     const container = document.getElementsByTagName('div');
@@ -78,7 +80,7 @@ const _invokeStylePalet = (event) => {
     container.style.zIndex = '9'; // Make sure it appears on top of other elements
     container.style.border = '1px solid #000';
     container.style.padding = '10px';
-
+    container.style.width = "390px"
     //Fetch Content HTML File
     fetch(chrome.runtime.getURL('content.html'))
         .then(response => response.text())
@@ -140,7 +142,7 @@ const _invokeTextPalet = (event) => {
 
     const inputFontSize = eventStyles["font-size"];
     let filteredFontSize = extractUnitNumber(inputFontSize);
-
+    console.log("INPUT SIZE", inputFontSize)
     //set value
     textInputFontSizePalet.value = filteredFontSize?.number;
     //set unit
@@ -157,7 +159,28 @@ const _invokeTextPalet = (event) => {
     }) 
 
     //Text Align
-    console.log("Align", eventStyles["text-align"])
+    const textAlign = eventStyles["text-align"];
+    const textAlignDropdown = document.querySelector("#inspex-text-align-dropdown");
+    textAlignDropdown.value = textAlign;
+    textAlignDropdown.addEventListener("change", (e)=>{
+        event.style.textAlign = e.target.value;
+    })
+
+    //Text Decoration
+    const textDecoration = (eventStyles["text-decoration"]?.split(" ")[0]);
+    const textDecorationDropdown = document.querySelector("#inspex-text-decoration-palet");
+    textDecorationDropdown.value = textDecoration;
+    textDecorationDropdown.addEventListener("change", (e)=>{
+        event.style.textDecoration = e.target.value;
+    })
+
+    //Font Weight 
+    const fontWeight = eventStyles["font-weight"];
+    const fontWeightDropDown = document.querySelector("#inspex-font-weight-dropdown");
+    fontWeightDropDown.value = fontWeight;
+    fontWeightDropDown.addEventListener("change", (e)=>{
+        event.style.fontWeight = e.target.value;
+    })
 }
 
 //Helper functions
@@ -208,14 +231,24 @@ function extractInnerText(htmlString) {
 
 //extract number and unit from string
 function extractUnitNumber(string) {
-    const matches = string.match(/^(\d+)(\D+)$/);
+    const regex = /^(\d*\.?\d+)(\D+)$/;
+
+    // Match the number and unit using the regular expression
+    const matches = string.match(regex);
 
     if (matches && matches.length === 3) {
-        const number = parseInt(matches[1]); 
-        const unit = matches[2]; 
-        return { number, unit };
+        // Extract the number and unit from the matched groups
+        const number = parseFloat(matches[1]);
+        const unit = matches[2];
+
+        // Return an object with the extracted properties
+        return {
+            number: number,
+            unit: unit
+        };
     } else {
-        return { number: 0, unit: '' };
+        // Return null if the font-size string does not match the expected format
+        return null;
     }
 }
 
