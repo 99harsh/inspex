@@ -7,8 +7,7 @@ window.onload = function () {
 
 const _HTMLTEXTELEMENTS = ["h1", "h2", "h3", "h4", "h5", "span", "a", "button"];
 const _UNITS = ["rem", "px", "em"];
-const _TEXTALIGNMENTS = {start:0, left: 1, center: 2, right: 3, justify: 4};
-const _TEXTDECORATIONS = {none: 0, "line-throgh": 1, underline: 3, "overline underline":4};
+
 
 const _init = () => {
     const container = document.getElementsByTagName('div');
@@ -33,6 +32,7 @@ const _init = () => {
         container[0].addEventListener('click', function (event) {
             if (event.target) {
                 _invokeStylePalet(event.target)
+             
             }
         })
 
@@ -72,36 +72,315 @@ const _invokeStylePalet = (event) => {
     const left = localStorage.getItem("inspex-left");
 
     //Defaul Box Styling
-    container.style.position = 'fixed';
-    container.style.top = top ? top : '50px'; // Adjust as needed
-    container.style.left = left ? left : '50px'; // Adjust as needed
-    container.style.backgroundColor = '#fff';
-    container.style.borderRadius = "15px";
-    container.style.zIndex = '9'; // Make sure it appears on top of other elements
-    container.style.border = '1px solid #000';
-    container.style.padding = '10px';
-    container.style.width = "390px"
+    const containerStyles = `position: fixed; top: ${top ? top : "50px"}; left: ${left ? left : "50px"}; z-index: 9;`
+    container.setAttribute("style", containerStyles)
     //Fetch Content HTML File
     fetch(chrome.runtime.getURL('content.html'))
         .then(response => response.text())
         .then(html => {
             container.innerHTML += html;
 
-            if (_HTMLTEXTELEMENTS.includes(event?.tagName?.toLowerCase())) {
-                _invokeTextPalet(event);
+            if (_HTMLTEXTELEMENTS.includes(event?.tagName?.toLowerCase()) || true) {
+    
             }
 
             //Init All Palets
-            _invokeColorPalet("#inspex-background-editor", event, inputColor, "background-color")
+           // _invokeColorPalet("#inspex-background-editor", event, inputColor, "background-color")
+            const dragContainer = document.querySelector("#inspex-drag-me-container")
+   
+            // Make the container draggable
+            makeDraggable(dragContainer, container);
+            _generateHTML(event);
         })
         .catch(error => console.error('Error fetching inner content:', error));
 
 
     // Append the container to the document body
     document.body.prepend(container);
-    // Make the container draggable
-    makeDraggable(container);
+
+
 }
+
+
+
+const demo2 = [
+    {
+    sectionName: "Display",
+    sectionId: "inspex-all-display-container",
+    bodySectionId: "inspex-display-body-container",
+    sectionProperties: {
+        mainProperty:{
+            paletName: "Display",
+            type: "select",
+            style: "display",
+            styleValues: ["block","inline","inline-block","none","flex","inline-flex","grid","inline grid","table","inline-table","table-row","table-cell","table-caption","table-column","table-column-group","table-header-group","table-footer-group","table-row-group","flex-inline","ruby","ruby-base","ruby-text","ruby-base-container","ruby-text-cntainer","contents","flow-root","list-item","inherit","initial","unset","run-in"],
+            id: "inspex-display-dropdown",
+            isMultiple: false,
+            event: "change",
+            isFullWidth: true
+        },
+        supportingProperties:{
+            block:[],
+            inline: [],
+            "inline-block": [],
+            none: [], 
+            flex: [{
+                paletName: "Flex Direction",
+                style: "flex-direction",
+                type: "select",
+                styleValues:["row","column","row-reverse","column-reverse","inherit","initial"],
+                id: "inspex-flex-direction-dropdown",
+                isMultiple: false,
+                event: "change"
+            },
+            {
+                paletName: "Align Items",
+                style: "align-items",
+                type: "select",
+                styleValues: ["stretch","normal","flex-start","flex-end","center","baseline","initial","inherit","unset","start","end","baseline"],
+                id: "inspex-align-items-dropdown",
+                isMultiple: false,
+                event: "change"
+            },
+            {
+                paletName: "Justify Content",
+                style: "justify-content",
+                type: "select",
+                styleValues:["flex-start","flex-end","center","space-between","space-around","space-evenly","stretch","inherit","initial","unset"],
+                id: "inspex-justify-content-dropdown",
+                isMultiple: false,
+                event: "change"
+            },
+            {
+                paletName: "Flex",
+                style:"flex",
+                type: "select",
+                styleValues:["flex-grow","flex-shrink","flex-basis","auto","inherit","initial","none"],
+                id: "inspex-flex-option-dropdown",
+                isMultiple: false,
+                event: "change"
+            },
+            {
+                paletName: "Flex Wrap",
+                style:"flex-wrap",
+                type: "select",
+                styleValues:["nowrap","wrap","wrap-reverse","inherit","initial"],
+                id: "inspex-flex-wrap-dropdown",
+                isMultiple: false,
+                event: "change"
+            },
+            {
+                paletName: "Flex Flow",
+                style:"flex-flow",
+                type: "select",
+                styleValues:["row","row-reverse","column","column-reverse","nowrap","wrap","wrap-reverse","inherit","initial"],
+                id: "inspex-flex-flow-dropdown",
+                isMultiple: false,
+                event: "change"
+            },
+            {
+                paletName: "Flex Basis",
+                style:"flex-basis",
+                type: "select",
+                styleValues:["number","auto","inherit","initial","none","length","percentage","fill","content"],
+                id: "inspex-flex-basis-dropdown",
+                isMultiple: false,
+                event: "change"
+            },
+            {
+                paletName: "Flex Grow",
+                style:"flex-grow",
+                type: "select",
+                styleValues:["number","inherit","initial"],
+                id: "inspex-flex-grow-dropdown",
+                isMultiple: false,
+                event: "change"
+            }]
+        }
+
+    }
+    },
+    {
+        sectionName: "Text",
+        sectionId: "inspex-all-text-container",
+        bodySectionId: "inspex-text-body-container",
+        sectionProperties:{
+            supportingProperties:
+            [
+                {
+                    paletName:"Text Align",
+                    style: "text-align",
+                    styleValues: ["center", "end", "justify", "left", "right", "start", "-webkit-auto", "-webkit-center", "-webkit-left", "-webkit-left", "-webkit-right", "inherit", "initial", "revert", "revert-layer", "unset"],
+                    selector: "#inspex-text-align-dropdown",
+                    isMultiple: false,
+                    event: "change",
+                    type:"select"
+                },
+                {
+                    paletName:"Text Decoration",
+                    style:"text-decoration",
+                    styleValues: ["auto", "blink", "dashed", "dotted", "double","line-through", "none", "overline", "solid", "underline", "wavy", "inherit", "initial", "revert", "revert-layer", "unset"],
+                    selector: "#inspex-text-decoration-palet",
+                    isMultiple: false,
+                    event: "change",
+                    type:"select"
+                },
+                {
+                    paletName:"Font Weight",
+                    style: "font-weight",
+                    styleValues: [100, 200, 300, 400, 500, 600, 700, 800, 900],
+                    selector: "#inspex-font-weight-dropdown",
+                    isMultiple: false,
+                    event:"change",
+                    type:"select"
+                },
+                
+                {
+                    paletName:"Font Size",
+                    style: "font-size",
+                    isMultiple: true,
+                    numberId: "#inspex-font-size-palet",
+                    unitId: "#inspex-font-size-dropdown"
+                },
+                {
+                    paletName:"Line Height",
+                    style: "line-height",
+                    isMultiple: true,
+                    numberId: "#inspex-text-line-height-input",
+                    unitId: "#inspex-text-line-height-dropdown",
+                },
+                {
+                    paletName:"Letter Spacing",
+                    style: "letter-spacing",
+                    isMultiple: true,
+                    numberId: "#inspex-text-letter-spacing-input",
+                    unitId: "#inspex-text-letter-spacing-dropdown"
+                },
+                {
+                    paletName:"Word Spacing",
+                    style: "word-spacing",
+                    isMultiple: true,
+                    numberId: "#inspex-word-spacing-input",
+                    unitId: "#inspex-word-spacing-dropdown"
+                },
+                {
+                    paletName:"Text Indent",
+                    style: "text-indent",
+                    isMultiple: true,
+                    numberId: "#inspex-text-indent-input",
+                    unitId: "#inspex-text-indent-dropdown"
+                },
+                {
+                    paletName:"White Space",
+                    style: "white-space",
+                    styleValues:["normal", "nowrap", "pre", "pre-wrap", "pre-line", "break-space"],
+                    selector: "#inspex-text-white-space-dropdown",
+                    isMultiple: false,
+                    type:"select",
+                    event:"change"
+                    
+                } 
+                
+            //     {
+            //         style:"text-transform",
+            //         styleValues:["capitilize","lowercase","uppercase","none","initial","inherit"]
+            //     },
+            //     {
+            //         style:"font-family",
+            //         styleValues:["Arial","Helvetica","Times New Roman","Times","Georgia","Courier New","Courier","Verdana"]
+            //     },
+            //     {
+            //         style:"font-style",
+            //         styleValues:["normal","italic","oblique","inherit","initial"]
+            //     }
+            ]
+        }
+    }
+]
+
+const _generateHTML = (domSelector) => {
+
+    const domSelectorStyles = getComputedStyle(domSelector);
+
+    const mainContainer = document.getElementById('inspex-main-body-container');
+    
+    for(let section of demo2){
+        const bodyContainer = createDivWithId(section.bodySectionId);
+        const mainSectionContainer = createDivWithId(section.sectionId);
+        const mainProperty = section.sectionProperties?.mainProperty;
+        const supportingProperties = section.sectionProperties?.supportingProperties;
+        if(mainProperty){
+            const mainPropertyCurrentStyle =  domSelectorStyles[mainProperty?.style];
+            let inputElement;
+            const flex1Col = createDivWithClasses('inspex-palet');
+            flex1Col.appendChild(createLabel(mainProperty?.paletName, mainProperty?.id));
+
+            if(mainProperty?.type == "select"){
+                const selectorStyle = mainProperty?.style == "text-decoration" ?  domSelectorStyles["text-decoration"]?.split(" ")[0] : domSelectorStyles[mainProperty?.style]; 
+                if(!(mainProperty?.styleValues.includes(selectorStyle))){
+                    mainProperty?.styleValues.push(selectorStyle);
+                }
+                inputElement = createSelect(mainProperty?.id, mainProperty?.styleValues);
+                inputElement.value = mainPropertyCurrentStyle;
+                flex1Col.appendChild(inputElement);
+            }
+         
+            _populateInputElements(supportingProperties[mainPropertyCurrentStyle], bodyContainer, domSelector);
+            inputElement.addEventListener(mainProperty.event, (e)=>{
+                const new_property = e.target.value;
+                domSelector.style.setProperty(mainProperty.style, new_property, "important");
+                _populateInputElements(supportingProperties[new_property], bodyContainer, domSelector);
+            })
+            mainSectionContainer.appendChild(flex1Col);
+        }else{
+            _populateInputElements(supportingProperties, bodyContainer, domSelector)
+        }
+        
+        mainSectionContainer.appendChild(bodyContainer);
+        mainContainer.appendChild(mainSectionContainer);
+    }
+
+}
+
+const _populateInputElements = (supportingProperties, bodyContainer, domSelector) => {
+
+    const domSelectorStyles = getComputedStyle(domSelector);
+    bodyContainer.innerHTML = "";
+    if(supportingProperties?.length > 0){
+        const flexRowPalet = createDivWithClasses('inspex-flex-row inspex-palet');
+        for(let section of supportingProperties){
+
+                const flex1Col = createDivWithClasses('inspex-flex-50');
+                flex1Col.appendChild(createLabel(section.paletName, section.id));
+                let inputElement;
+                if(section.type == "select"){
+                    const selectorStyle = section.style == "text-decoration" ?  domSelectorStyles["text-decoration"]?.split(" ")[0] : domSelectorStyles[section.style]; 
+                    if(!(section.styleValues.includes(selectorStyle))){
+                        section.styleValues.push(selectorStyle);
+                    }
+                    inputElement = createSelect(section.id, section.styleValues);
+                    inputElement.value = selectorStyle;
+                    console.log("VALUE", selectorStyle, section.style)
+                    inputElement.addEventListener(section.event, (e)=> {
+                      domSelector.style.setProperty(section.style, e.target.value, "important")
+                    })
+                    flex1Col.appendChild(inputElement);
+                }
+                else if(section.type == "text" && section.isMultiple){
+
+                }
+                flexRowPalet.appendChild(flex1Col);
+            
+            }
+            bodyContainer.appendChild(flexRowPalet);
+    }else{
+        const mainDiv = createDivWithId("main-supporing-dropdown");
+    }
+}
+
+
+
+
 
 
 const _invokeColorPalet = (elementName, event, inputColor = 'rgba(0,0,0,0)', inputType) => {
@@ -115,75 +394,10 @@ const _invokeColorPalet = (elementName, event, inputColor = 'rgba(0,0,0,0)', inp
     }
 }
 
-const _invokeTextPalet = (event) => {
-    //get current styles
-    const eventStyles = getComputedStyle(event);
-    
-    //main selector for text operations
-    const textInputContainerPalet = document.querySelector("#inspex-text-palet");
 
-    //on text change 
-    const textInputPalet = document.querySelector("#inspex-text-name");
-    let text = event.innerHTML || event?.innerText;
-    textInputPalet.value = extractInnerText(text);
-    textInputPalet.value != "" ? textInputContainerPalet.style.display = "block" : "";
-    //event listner for text change
-    textInputPalet.addEventListener("input", (e)=>{
-        event.innerHTML = e.target.value;
-    })
-
-    //on text color change
-    const inputColor = eventStyles["color"];
-    _invokeColorPalet("#inspex-text-color-editor", event, inputColor, "text-color");
-
-    //on font size change
-    const textInputFontSizePalet = document.querySelector("#inspex-font-size-palet");
-    const textInputFontUnitDropdown = document.querySelector("#inspex-font-size-dropdown");
-
-    const inputFontSize = eventStyles["font-size"];
-    let filteredFontSize = extractUnitNumber(inputFontSize);
-    console.log("INPUT SIZE", inputFontSize)
-    //set value
-    textInputFontSizePalet.value = filteredFontSize?.number;
-    //set unit
-    textInputFontUnitDropdown.value = filteredFontSize?.unit;
-
-    //event listener for font size & unit change
-    textInputFontSizePalet.addEventListener("input", (e)=>{
-        filteredFontSize.number = e.target.value
-        event.setAttribute("style", `font-size: ${e.target.value}${filteredFontSize.unit} !important`)
-    })
-    textInputFontUnitDropdown.addEventListener("change", (e)=>{
-        filteredFontSize.unit = e.target.value;
-        event.setAttribute("style", `font-size: ${filteredFontSize.number}${e.target.value} !important`)
-    }) 
-
-    //Text Align
-    const textAlign = eventStyles["text-align"];
-    const textAlignDropdown = document.querySelector("#inspex-text-align-dropdown");
-    textAlignDropdown.value = textAlign;
-    textAlignDropdown.addEventListener("change", (e)=>{
-        event.style.textAlign = e.target.value;
-    })
-
-    //Text Decoration
-    const textDecoration = (eventStyles["text-decoration"]?.split(" ")[0]);
-    const textDecorationDropdown = document.querySelector("#inspex-text-decoration-palet");
-    textDecorationDropdown.value = textDecoration;
-    textDecorationDropdown.addEventListener("change", (e)=>{
-        event.style.textDecoration = e.target.value;
-    })
-
-    //Font Weight 
-    const fontWeight = eventStyles["font-weight"];
-    const fontWeightDropDown = document.querySelector("#inspex-font-weight-dropdown");
-    fontWeightDropDown.value = fontWeight;
-    fontWeightDropDown.addEventListener("change", (e)=>{
-        event.style.fontWeight = e.target.value;
-    })
-}
 
 //Helper functions
+
 
 //convert rgb to rgba
 const _rgbToRgba = (rgbString) => {
@@ -248,43 +462,82 @@ function extractUnitNumber(string) {
         };
     } else {
         // Return null if the font-size string does not match the expected format
-        return null;
+        return {number: 0, unit: "px"};
     }
 }
 
+// Function to create a div element with specified classes
+function createDivWithClasses(classes) {
+    var div = document.createElement('div');
+    div.className = classes;
+    return div;
+}
+
+function createDivWithId(id){
+    const  div = document.createElement("div");
+    div.id = id;
+    return div;
+}
+
+// Function to create a label element
+function createLabel(text, forAttribute) {
+    var label = document.createElement('label');
+    label.textContent = text;
+    label.classList.add("inspex-label")
+    if (forAttribute) {
+        label.setAttribute('for', forAttribute);
+    }
+    return label;
+}
+
+// Function to create a select element
+function createSelect(id, selectData) {
+    var select = document.createElement('select');
+    select.className = 'inspex-select-dropdown';
+    if (id) {
+        select.id = id;
+    }
+    for(let option of selectData){
+        const optionSelector = document.createElement("option");
+        optionSelector.text = option;
+        optionSelector.value = option;
+        select.appendChild(optionSelector);
+    }
+    return select;
+}
 
 // Function to make the container draggable
-function makeDraggable(element) {
-    let pos1 = 0,
-        pos2 = 0,
-        pos3 = 0,
-        pos4 = 0;
-    element.onmousedown = dragMouseDown;
+function makeDraggable(element,mainContainer) {
+    let isDragging = false;
+    let offsetX, offsetY;
 
-    function dragMouseDown(e) {
-        e = e || window.event;
-       // e.preventDefault();
-        pos3 = e.clientX;
-        pos4 = e.clientY;
-        document.onmouseup = closeDragElement;
-        document.onmousemove = elementDrag;
+    // Function to handle mouse down event
+    function handleMouseDown(event) {
+        isDragging = true;
+        let rect = mainContainer.getBoundingClientRect();
+        offsetX = event.clientX - rect.left;
+        offsetY = event.clientY - rect.top;
     }
 
-    function elementDrag(e) {
-        e = e || window.event;
-       // e.preventDefault();
-        pos1 = pos3 - e.clientX;
-        pos2 = pos4 - e.clientY;
-        pos3 = e.clientX;
-        pos4 = e.clientY;
-        element.style.top = element.offsetTop - pos2 + 'px';
-        element.style.left = element.offsetLeft - pos1 + 'px';
-        localStorage.setItem("inspex-top", element.style.top)
-        localStorage.setItem("inspex-left", element.style.left)
+    // Function to handle mouse move event
+    function handleMouseMove(event) {
+        if (isDragging) {
+            let x = event.clientX - offsetX;
+            let y = event.clientY - offsetY;
+            mainContainer.style.left = x + 'px';
+            mainContainer.style.top = y + 'px';
+            localStorage.setItem("inspex-top", mainContainer.style.top)
+            localStorage.setItem("inspex-left", mainContainer.style.left)
+        }
     }
 
-    function closeDragElement() {
-        document.onmouseup = null;
-        document.onmousemove = null;
+    // Function to handle mouse up event
+    function handleMouseUp() {
+        isDragging = false;
     }
+
+    // Add event listeners
+    element.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
 }
