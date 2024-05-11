@@ -7,20 +7,35 @@
     <title>Inspex</title>
 
     <style>
+        .inspex-main-container * {
+            padding: 0px !important;
+            margin: 0px !important;
+            line-height: normal !important;
+            transition: all 0.3s ease;
+        }
+
+        .inspex-main-container input:focus,
+        .inspex-main-container select:focus {
+            outline: 1px solid rgba(235, 86, 142, 1) !important;
+        }
+
         .inspex-main-container {
             width: 390px;
-            border-radius: 10px;
-            background-color: #fff;
+            background-color: #fff !important;
             overflow: hidden;
+            font-family: sans-serif !important;
         }
 
-        .inspex-heading {
-            color: rgba(235, 86, 142, 1)
+        .inspex-main-container input,
+        .inspex-main-container select {
+            padding: 5px !important;
+            flex: 1;
         }
+
 
         .inspex-window-header {
-            background-color: #000;
-            padding: 10px;
+            background-color: #000 !important;
+            padding: 10px !important;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -31,22 +46,32 @@
             font-weight: bold;
         }
 
+        .inspex-heading {
+            color: rgba(235, 86, 142, 1);
+        }
+
+
         .inspex-window-controls button {
             background: none;
             border: none;
             cursor: pointer;
-            padding: 0;
-            margin-left: 5px;
-            font-size: 16px;
+            padding: 0 !important;
+            margin-left: 8px !important;
+            font-size: 20px;
             line-height: 1;
-            color: #777;
+            color: #ccc;
         }
 
-
         .inspex-body-container {
-            padding: 10px;
+            padding: 10px !important;
             height: 400px;
             overflow: scroll;
+        }
+
+        .inspex-section-container {
+            padding: 5px 0px !important;
+            margin: 5px 0px !important;
+            border-top: 1px solid #ccc !important;
         }
 
         .inspex-flex-row {
@@ -57,19 +82,39 @@
         }
 
         .inspex-flex-1 {
+
             flex: 1;
         }
-        .inspex-flex-50{
-            flex: 50%;
-            padding-bottom: 5px;
-        }
-        .inspex-flex-50:nth-child(even){
-            padding-left: 10px;
+
+
+        #inspex-main-body-container .inspex-flex-1 {
+            display: flex;
         }
 
-        .inspex-palet {
-            margin-bottom: 10px;
+        .inspex-flex-2 {
+            flex: 3;
         }
+
+        .inspex-flex-50 {
+            flex: 50%;
+            padding-bottom: 5px !important;
+        }
+
+        .inspex-flex-50:nth-child(even) div {
+            padding-left: 10px !important;
+        }
+
+        .inspex-flex-50:nth-child(even) div div {
+            padding-left: 0 !important;
+        }
+
+        .inspex-flex-50:nth-child(even) div .inspex-odd-dropdown-container {
+            padding-left: 10px !important;
+        }
+
+        /* .inspex-palet {
+            margin-bottom: 10px !important;
+        } */
 
         .inspex-palet-editor {
             border: 1px solid #ccc;
@@ -77,42 +122,49 @@
             cursor: pointer;
             border-radius: 5px;
             font-size: 14px;
-            padding: 5px 0px 5px 40px;
+            padding: 5px 0px 5px 40px !important;
             width: 100%;
         }
 
         .inspex-text-input {
             width: 100%;
-            padding: 5px;
+            padding: 5px !important;
+            border: 1px solid;
             border-color: #ccc;
             border-radius: 5px;
             font-size: 14px;
         }
 
+        .inspex-label-container {
+            padding-bottom: 5px !important;
+        }
+
         .inspex-label {
-            font-size: 14px;
+            font-size: 14px !important;
             font-weight: 600;
+            margin: 0px !important;
+            padding: 0px !important;
         }
 
         .inspex-select-dropdown {
-            padding: 5px 25px 5px 5px;
+            padding: 5px 25px 5px 5px !important;
             border-color: #ccc;
             border-radius: 5px;
             width: 100%;
             font-size: 14px;
         }
 
-        .inspex-select-dropdown option{
-            text-transform:capitalize !important;
+        .inspex-select-dropdown option {
+            text-transform: capitalize !important;
             color: red;
         }
 
         .inspex-odd-dropdown-container {
-            padding-left: 10px;
+            padding-left: 10px !important;
         }
 
         .inspex-background-palet {
-            padding-top: 10px;
+            padding-top: 10px !important;
         }
 
         #inspex-text-palet {
@@ -121,307 +173,106 @@
         }
 
         .inspex-font-size-dropdown-container {
-            padding-left: 5px;
+            padding-left: 5px !important;
         }
 
         .inspex-button {
             font-size: 14px;
-            padding: 0px 5px;
+            padding: 0px 5px !important;
+        }
+
+        .inspex-color-picker {
+            cursor: pointer;
+        }
+
+        /*light theme */
+        .inspex-light-theme .inspex-label {
+            color: #000 !important;
+        }
+
+        .inspex-light-theme .inspex-text-input,
+        .inspex-light-theme .inspex-select-dropdown {
+            background-color: #fff !important;
+            color: #000 !important;
+        }
+
+        .minimized-window {
+           
+            background-color: rgba(235, 86, 142, 1);
+            position: fixed;
+            top: 50px;
+            transition: all 0.3s ease;
+            display: none;
+            z-index: 99999;
+            cursor: move;
+            transform: rotate(90deg);
+            left: -30px;
+            padding: 10px !important;
+            border-radius: 10px;
+        }
+
+        .inspex-vertical-branding {
+           
+            margin: 0px !important;
         }
     </style>
 </head>
 
 <body>
-    <div class="inspex-main-container">
+    <div class="inspex-main-container inspex-light-theme" id="inspex-root-container">
 
         <div class="inspex-window-header inspex-drag-container" id="inspex-drag-me-container">
             <div class="inspex-window-title">
                 <p class="inspex-heading">Inspex.dev</p>
             </div>
             <div class="inspex-window-controls">
-                <button class="inspex-window-minimize">-</button>
-                <button class="inspex-window-close">×</button>
+                <button class="inspex-window-minimize" id="inspex-minimize">-</button>
+                <button class="inspex-window-close" id="inspex-close">×</button>
             </div>
         </div>
-        
-            <!-- <div id="inspex-flex-palet">
-                <div class="inspex-flex-row inspex-palet">
+
+        <div class="inspex-body-container">
+            <div id="inspex-color-palet-container" class="inspex-section-container">
+                <div class="inspex-flex-row">
                     <div class="inspex-flex-1">
                         <div>
-                            <label class="inspex-label" for="inspex-display-dropdown">Display</label>
+                            <label class="inspex-label">Font Color</label>
                         </div>
-                        <div>
-                            <select class="inspex-select-dropdown" id="inspex-display-dropdown"></select>
-                        </div>
-                    </div> 
-                
-                    <div class="inspex-flex-1 inspex-odd-dropdown-container">
-                        <div>
-                            <label class="inspex-label">Flex Direction</label>
-                        </div>
-                        <div>
-                            <select class="inspex-select-dropdown" id="inspex-flex-direction-dropdown"></select>
+                        <div class="inspex-flex-row">
+                            <div class="inspex-flex-2">
+                                <input class="inspex-text-input inspex-color-picker" id="inspex-font-color-palet"
+                                    data-js="{position: 'right'}" />
+                            </div>
+                            <div class="inspex-flex-1 inspex-odd-dropdown-container">
+                                <select class="inspex-select-dropdown">
+                                    <option value="rgba">RGBA</option>
+                                    <option value="hex">HEX</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="inspex-flex-row inspex-palet">
+                <div class="inspex-flex-row">
                     <div class="inspex-flex-1">
                         <div>
-                            <label class="inspex-label" for="inspex-align-items-dropdown">Align Items</label>
+                            <label class="inspex-label">Background Color</label>
                         </div>
-                        <div>
-                            <select class="inspex-select-dropdown" id="inspex-align-items-dropdown"></select>
-                        </div>
-                    </div> 
-                
-                    <div class="inspex-flex-1 inspex-odd-dropdown-container">
-                        <div>
-                            <label class="inspex-label">Justify Content</label>
-                        </div>
-                        <div>
-                            <select class="inspex-select-dropdown" id="inspex-justify-content-dropdown"></select>
-                        </div>
-                    </div>
-                </div>
-                <div class="inspex-flex-row inspex-palet">
-                    <div class="inspex-flex-1">
-                        <div>
-                            <label class="inspex-label" for="inspex-flex-dropdown">Flex</label>
-                        </div>
-                        <div>
-                            <select class="inspex-select-dropdown" id="inspex-flex-dropdown"></select>
-                        </div>
-                    </div> 
-                
-                    <div class="inspex-flex-1 inspex-odd-dropdown-container">
-                        <div>
-                            <label class="inspex-label" for="inspex-flex-">Flex Flow</label>
-                        </div>
-                        <div>
-                            <select class="inspex-select-dropdown" id="inspex-justify-content-dropdown"></select>
+                        <div class="inspex-flex-row">
+                            <div class="inspex-flex-2">
+                                <input class="inspex-text-input inspex-color-picker" id="inspex-background-color-palet"
+                                    data-js="{position: 'right'}" />
+                            </div>
+                            <div class="inspex-flex-1 inspex-odd-dropdown-container">
+                                <select class="inspex-select-dropdown">
+                                    <option value="rgba">RGBA</option>
+                                    <option value="hex">HEX</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        
-            <div id="inspex-text-palet">
-                <div class="inspex-palet">  
-                    <div>
-                        <label class="inspex-label" for="inspex-text-name">Text</label>
-                    </div>
-                    <div>
-                        <input class="inspex-text-input" id="inspex-text-name" type="text" placeholder="Text Filed"
-                            value="" />
-                    </div>
-                </div>
-                <div class="inspex-palet inspex-flex-row">
-                    <div class="inspex-flex-1">
-                        <div>
-                            <label class="inspex-label" for="inspex-text-color-editor">Text Color</label>
-                        </div>
-                        <div>
-                            <input id="inspex-text-color-editor" class="inspex-palet-editor"
-                                data-jscolor="{position: 'right'}" />
-                        </div>
-                    </div>
-                    <div class="inspex-flex-1 inspex-odd-dropdown-container">
-                        <div>
-                            <label class="inspex-label" for="inspex-background-editor">Background</label>
-                        </div>
-                        <div>
-                            <input id="inspex-background-editor" class="inspex-palet-editor"
-                                data-jscolor="{position: 'right'}" />
-                        </div>
-                    </div>
-                </div>
-                <div class="inspex-palet">
-                    <div class="inspex-flex-row">
-                        <div class="inspex-flex-1">
-                            <div>
-                                <label class="inspex-label" for="inspex-font-size-palet">Font Size</label>
-                            </div>
-                            <div class="inspex-flex-row">
-                                <div class="inspex-flex-1">
-                                    <input class="inspex-text-input" type="number" id="inspex-font-size-palet" />
-                                </div>
-                                <div class="inspex-flex-1 inspex-font-size-dropdown-container">
-                                    <select id="inspex-font-size-dropdown" class="inspex-select-dropdown">
-                                        <option value="px">px</option>
-                                        <option value="rem">rem</option>
-                                        <option value="em">em</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="inspex-flex-1 inspex-odd-dropdown-container">
-                            <div>
-                                <label class="inspex-label">Font Weight</label>
-                            </div>
-                            <div>
-                                <select class="inspex-select-dropdown" id="inspex-font-weight-dropdown"></select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="inspex-palet inspex-flex-row">
-                    <div class="inspex-flex-1">
-                        <div>
-                            <label class="inspex-label">Font Family</label>
-                        </div>
-                        <div>
-                            <select class="inspex-select-dropdown" id="inspex-font-family-dropdown">
-                                <option value="auto">Auto</option>
-                                <option value="cursive">Cursive</option>
-                                <option value="emoj">Emoj</option>
-                                <option value="fangsong">Fangsong</option>
-                                <option value="fantasy">Fantasy</option>
-                                <option value="math">Math</option>
-                                <option value="monospace">Monospace</option>
-                                <option value="none">None</option>
-                                <option value="sans-serif">Sans-Serif</option>
-                                <option value="serif">Serif</option>
-                                <option value="system-ui">System-UI</option>
-                                <option value="ui-monospace">UI-Monospace</option>
-                                <option value="ui-rounded">UI-Rounded</option>
-                                <option value="ui-serif">UI-Serif</option>
-                                <option value="-webkit-body">Webkit Body</option>
-                                <option value="inherit">Inherit</option>
-                                <option value="initial">Initial</option>
-                                <option value="revert">Revert</option>
-                                <option value="revert-layer">Revert Layer</option>
-                                <option value="unset">Unset</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="inspex-flex-1 inspex-odd-dropdown-container">
-                        <div>
-                            <label class="inspex-label">Font Style</label>
-                        </div>
-                        <div>
-                            <select class="inspex-select-dropdown" id="inspex-font-style-dropdown">
-                                <option value="normal">Normal</option>
-                                <option value="italic">Italic</option>
-                                <option value="oblique">Oblique</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="inspex-palet inspex-flex-row">
-                    <div class="inspex-flex-1 inspex-text-align-palet">
-                        <div>
-                            <label class="inspex-label">Text Align</label>
-                        </div>
-                        <div>
-                            <select class="inspex-select-dropdown" id="inspex-text-align-dropdown"></select>
-                        </div>
-                    </div>
-                    <div class="inspex-flex-1 inspex-odd-dropdown-container">
-                        <div>
-                            <label class="inspex-label">Text Decoration</label>
-                        </div>
-                        <div>
-                            <select class="inspex-select-dropdown" id="inspex-text-decoration-palet"></select>
-                        </div>
-                    </div>
-                </div>
-                <div class="inspex-palet">
-                    <div class="inspex-flex-row">
-                        <div class="inspex-flex-1">
-                            <label class="inspex-label">Word Spacing</label>
-                        </div>
-                        <div class="inspex-flex-1">
-                            <label class="inspex-label">Letter Spacing</label>
-                        </div>
-                    </div>
-                    <div class="inspex-flex-1 inspex-flex-row">
-                        <div class="inspex-flex-1 inspex-flex-row">
-                            <div class="inspex-flex-1">
-                                <input type="number" class="inspex-text-input" id="inspex-word-spacing-input" />
-                            </div>
-                            <div class="inspex-flex-1 inspex-odd-dropdown-container">
-                                <select class="inspex-select-dropdown" id="inspex-word-spacing-dropdown">
-                                    <option value="px">px</option>
-                                    <option value="rem">rem</option>
-                                    <option value="em">em</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="inspex-flex-1 inspex-flex-row inspex-odd-dropdown-container">
-                            <div class="inspex-flex-1">
-                                <input type="number" class="inspex-text-input" id="inspex-text-letter-spacing-input" />
-                            </div>
-                            <div class="inspex-flex-1 inspex-odd-dropdown-container"
-                                id="inspex-text-letter-spacing-dropdown">
-                                <select class="inspex-select-dropdown">
-                                    <option value="px">px</option>
-                                    <option value="rem">rem</option>
-                                    <option value="em">em</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="inspex-palet">
-                    <div class="inspex-flex-row">
-                        <div class="inspex-flex-1">
-                            <label class="inspex-label">Line Height</label>
-                        </div>
-                        <div class="inspex-flex-1">
-                            <label class="inspex-label">Text Indent</label>
-                        </div>
-                    </div>
-                    <div class="inspex-flex-1 inspex-flex-row">
-                        <div class="inspex-flex-1 inspex-flex-row">
-                            <div class="inspex-flex-1">
-                                <input type="number" class="inspex-text-input" id="inspex-text-line-height-input" />
-                            </div>
-                            <div class="inspex-flex-1 inspex-odd-dropdown-container">
-                                <select class="inspex-select-dropdown" id="inspex-text-line-height-dropdown">
-                                    <option value="px">px</option>
-                                    <option value="rem">rem</option>
-                                    <option value="em">em</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="inspex-flex-1 inspex-flex-row inspex-odd-dropdown-container">
-                            <div class="inspex-flex-1">
-                                <input type="number" class="inspex-text-input" id="inspex-text-indent-input" />
-                            </div>
-                            <div class="inspex-flex-1 inspex-odd-dropdown-container" id="inspex-text-indent-dropdown">
-                                <select class="inspex-select-dropdown">
-                                    <option value="px">px</option>
-                                    <option value="rem">rem</option>
-                                    <option value="em">em</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="inspex-palet inspex-flex-row">
-                    <div class="inspex-flex-1">
-                        <div>
-                            <label class="inspex-label">White Space</label>
-                        </div>
-                        <div>
-                            <select class="inspex-select-dropdown" id="inspex-text-white-space-dropdown"></select>
-                        </div>
-                    </div>
-                    <div class="inspex-flex-1 inspex-odd-dropdown-container">
-                        <div>
-                            <label class="inspex-label">Text Transform</label>
-                        </div>
-                        <div>
-                            <select class="inspex-select-dropdown" id="inspex-text-transform-dropdown"></select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="inspex-palet inspex-background-palet">
-            </div> -->
-
-        <div class="inspex-body-container" id="inspex-main-body-container">
-            
+            <div id="inspex-main-body-container"></div>
         </div>
     </div>
 </body>
