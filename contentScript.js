@@ -1,11 +1,12 @@
 window.onload = function () {
-    console.log("Loaded", window.location.origin);
-    if (window.location.origin == "https://www.google.com" || window.location.origin == "https://www.w3schools.com" || window.location.origin == "https://app.u4r.in") {
+    if (window.location.origin == "https://www.google.com" || window.location.origin == "https://www.w3schools.com" || window.location.origin == "https://app.u4r.in" 
+        || window.location.origin == "https://codepen.io"
+    ) {
         _init()
     }
 };
 
-const _HTMLTEXTELEMENTS = ["h1", "h2", "h3", "h4", "h5", "span", "a", "button"];
+const _HTMLTEXTELEMENTS = ["h1", "h2", "h3", "h4", "h5", "span", "a", "button", "p"];
 const _UNITS = ["px", "%", "rem", "em", "vh", "vw", "vmin", "vmax", "ch", "ex", "cm", "mm", "in", "pt", "pc"];
 const _COLORPALETS = [{
     selector: "inspex-font-color-palet",
@@ -309,7 +310,8 @@ const _invokeStylePalet = (event) => {
         .then(response => response.text())
         .then(html => {
             container.innerHTML += html;
-            if (_HTMLTEXTELEMENTS.includes(event?.tagName?.toLowerCase()) || true) {
+            if (_HTMLTEXTELEMENTS.includes(event?.tagName?.toLowerCase())) {
+                _invokeTextInput(event)
 
             }
             //Init All Palets
@@ -319,7 +321,7 @@ const _invokeStylePalet = (event) => {
             _generateHTML(event);
             _invokeColorPalet(event)
             makeDraggable(dragContainer, container);
-            _closeMinimizeEvent();
+            _closeEvent();
         })
         .catch(error => console.error('Error fetching inner content:', error));
 
@@ -327,7 +329,6 @@ const _invokeStylePalet = (event) => {
     // Append the container to the document body
     document.body.prepend(minimize);
     document.body.prepend(container);
-    // document.body.prepend(minimize);
 
 
 }
@@ -459,28 +460,39 @@ const _invokeColorPalet = (event) => {
     }
 }
 
-const _closeMinimizeEvent = () => {
+const _invokeTextInput = (event) =>{
+    const text = extractInnerText(event.innerText || event.innerHTML);
+    if(text != ""){
+        const textContainer = document.querySelector("#inspex-text-input-container");
+        const textInput = document.querySelector("#inspex-text-type-input");
+        textInput.value = text;
+        textInput.addEventListener("input", (e)=>{
+            event.innerText = e.target.value;
+        })
+        textContainer.style.setProperty("display", "block", "important");
+    }
+}
+
+const _closeEvent = () => {
     const closeButton = document.querySelector("#inspex-close");
+    const mainContainer = document.querySelector("#inspex-color-palet-container");
+    const minimized = document.querySelector("#inspex-minimized-window")
+    const minmizedCSS = document.querySelector(".minimized-window");
     closeButton.addEventListener("click", (e)=>{
-        console.log("CLOSED CLICKED");
-    })
-    const minimizeButton = document.querySelector("#inspex-minimize");
-    minimizeButton.addEventListener("click", (e)=>{
-        console.log("CLICKED")
-        const mainContainer = document.querySelector("#inspex-color-palet-container");
-        const minimized = document.querySelector("#inspex-minimized-window")
         minimized.innerHTML = `<p class='inspex-vertical-branding'>Inpex.dev</p>`;
         mainContainer.style.transform = "scale(0)";
-        minimized.style.visiblity = 'visible';
         setTimeout(()=>{
-            minimized.style.visiblity = 'visible';
-            const minmizedCSS = document.querySelector(".minimized-window");
-            //makeDraggable(minmizedCSS, minmizedCSS)
-            console.log("AAA", minmizedCSS)
             minmizedCSS.style.setProperty("display", "block", "important")
-            console.log("AAAAA ", minimized.style);
         },300)
     })
+    minimized.addEventListener("click", (e)=>{
+        minmizedCSS.style.setProperty("display", "none", "important")
+        setTimeout(()=>{
+            mainContainer.style.transform = "scale(1)";
+          
+        },300)
+    })
+    
 }
 
 //convert rgb to rgba

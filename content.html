@@ -48,6 +48,7 @@
 
         .inspex-heading {
             color: rgba(235, 86, 142, 1);
+            font-size: 14px !important;
         }
 
 
@@ -129,8 +130,7 @@
         .inspex-text-input {
             width: 100%;
             padding: 5px !important;
-            border: 1px solid;
-            border-color: #ccc;
+            border: 1px solid #ccc !important;
             border-radius: 5px;
             font-size: 14px;
         }
@@ -152,6 +152,10 @@
             border-radius: 5px;
             width: 100%;
             font-size: 14px;
+            text-overflow: ellipsis;
+            overflow: hidden !important;
+            white-space: nowrap;
+
         }
 
         .inspex-select-dropdown option {
@@ -185,6 +189,10 @@
             cursor: pointer;
         }
 
+        .inspex-color-palet-input-container {
+            margin-bottom: 5px !important;
+        }
+
         /*light theme */
         .inspex-light-theme .inspex-label {
             color: #000 !important;
@@ -197,14 +205,14 @@
         }
 
         .minimized-window {
-           
             background-color: rgba(235, 86, 142, 1);
+            color: #000;
             position: fixed;
             top: 50px;
             transition: all 0.3s ease;
             display: none;
             z-index: 99999;
-            cursor: move;
+            cursor: pointer;
             transform: rotate(90deg);
             left: -30px;
             padding: 10px !important;
@@ -212,8 +220,11 @@
         }
 
         .inspex-vertical-branding {
-           
             margin: 0px !important;
+        }
+
+        #inspex-text-input-container {
+            display: none;
         }
     </style>
 </head>
@@ -226,16 +237,24 @@
                 <p class="inspex-heading">Inspex.dev</p>
             </div>
             <div class="inspex-window-controls">
-                <button class="inspex-window-minimize" id="inspex-minimize">-</button>
+                <!-- <button class="inspex-window-minimize" id="inspex-minimize">-</button> -->
                 <button class="inspex-window-close" id="inspex-close">×</button>
             </div>
         </div>
 
         <div class="inspex-body-container">
+            <div class="inspex-section-container" id="inspex-text-input-container">
+                <div class="inspex-label-container">
+                    <label class="inspex-label">Text</label>
+                </div>
+                <div>
+                    <input type="text" class="inspex-text-input" id="inspex-text-type-input" />
+                </div>
+            </div>
             <div id="inspex-color-palet-container" class="inspex-section-container">
-                <div class="inspex-flex-row">
+                <div class="inspex-flex-row inspex-color-palet-input-container">
                     <div class="inspex-flex-1">
-                        <div>
+                        <div class="inspex-label-container">
                             <label class="inspex-label">Font Color</label>
                         </div>
                         <div class="inspex-flex-row">
@@ -252,9 +271,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="inspex-flex-row">
+                <div class="inspex-flex-row inspex-color-palet-input-container">
                     <div class="inspex-flex-1">
-                        <div>
+                        <div class="inspex-label-container">
                             <label class="inspex-label">Background Color</label>
                         </div>
                         <div class="inspex-flex-row">
