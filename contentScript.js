@@ -1,12 +1,12 @@
 window.onload = function () {
-    if (window.location.origin == "https://www.google.com" || window.location.origin == "https://www.w3schools.com" || window.location.origin == "https://app.u4r.in" 
+    if (window.location.origin == "https://www.google.com" || window.location.origin == "https://www.w3schools.com" || window.location.origin == "https://app.u4r.in"
         || window.location.origin == "https://codepen.io"
     ) {
         _init()
     }
 };
 
-const _HTMLTEXTELEMENTS = ["h1", "h2", "h3", "h4", "h5", "span", "a", "button", "p"];
+const _HTMLTEXTELEMENTS = ["h1", "h2", "h3", "h4", "h5", "span", "a", "button", "p", "td", "input", "select"];
 const _UNITS = ["px", "%", "rem", "em", "vh", "vw", "vmin", "vmax", "ch", "ex", "cm", "mm", "in", "pt", "pc"];
 const _COLORPALETS = [{
     selector: "inspex-font-color-palet",
@@ -60,6 +60,15 @@ const _CSS_ = [
                     style: "justify-content",
                     type: "select",
                     styleValues: ["flex-start", "flex-end", "center", "space-between", "space-around", "space-evenly", "stretch", "inherit", "initial", "unset"],
+                    id: "inspex-justify-content-dropdown",
+                    isMultiple: false,
+                    event: "change"
+                },
+                {
+                    paletName: "Align Self",
+                    style: "align-self",
+                    type: "select",
+                    styleValues: ["auto", "stretch", "center", "flex-end", "flex-start", "flex-end", "baseline", "initial", "inherit"],
                     id: "inspex-justify-content-dropdown",
                     isMultiple: false,
                     event: "change"
@@ -230,6 +239,8 @@ const _CSS_ = [
         }
     }
 ]
+let isDragabble = false;
+let drabbleFullScreen = "";
 
 const _init = () => {
     const container = document.getElementsByTagName('body');
@@ -244,7 +255,7 @@ const _init = () => {
             return false;
         }
         container[0].addEventListener('mouseover', function (event) {
-            if (event.target && !hasAncestor(event.target, 'inspex-root-container', "jscolor-wrap", "inspex-minimized-window")) {
+            if (event.target && !hasAncestor(event.target, 'inspex-root-container', "jscolor-wrap", "inspex-minimized-window") && !isDragabble) {
                 event.target.style.cursor = "pointer";
                 event.target.style.outline = '1px solid red';
 
@@ -253,15 +264,19 @@ const _init = () => {
 
         // Add event listener for mouseout on the container
         container[0].addEventListener('mouseout', function (event) {
-            if (event.target && !hasAncestor(event.target, 'inspex-root-container', "jscolor-wrap", "inspex-minimized-window")) {
-                event.target.style.cursor = "none";
+
+            if (event.target && !hasAncestor(event.target, 'inspex-root-container', "jscolor-wrap", "inspex-minimized-window") && !isDragabble) {
+                event.target.style.cursor = "unset";
                 event.target.style.outline = 'none';
             }
         });
 
         container[0].addEventListener('click', function (event) {
-            if (event.target && !hasAncestor(event.target, 'inspex-root-container', "jscolor-wrap", "inspex-minimized-window")) {
+            if (event.target && !hasAncestor(event.target, 'inspex-root-container', "jscolor-wrap", "inspex-minimized-window") && !isDragabble) {
                 _invokeStylePalet(event.target);
+                event.target.style.cursor = "pointer";
+                event.target.style.outline = '1px solid red';
+                event.inspex_clicked = true;
             }
         })
 
@@ -284,7 +299,7 @@ const _invokeStylePalet = (event) => {
         isExist.remove();
     }
 
-    if(isExitMinimize){
+    if (isExitMinimize) {
         isExitMinimize.remove();
     }
 
@@ -320,8 +335,9 @@ const _invokeStylePalet = (event) => {
             // Make the container draggable
             _generateHTML(event);
             _invokeColorPalet(event)
-            makeDraggable(dragContainer, container);
+            makeDraggable(dragContainer, container, "inspex-palet");
             _closeEvent();
+            _footerEvents(event);
         })
         .catch(error => console.error('Error fetching inner content:', error));
 
@@ -364,6 +380,7 @@ const _generateHTML = (domSelector) => {
                 flex1Col.appendChild(selectDiv);
             }
 
+            const isPrarentDisplayExist = checkFlexParent(domSelector.parentElement, ["flex", "inline-flex", "grid"]);
             _populateInputElements(supportingProperties[mainPropertyCurrentStyle], bodyContainer, domSelector);
             inputElement.addEventListener(mainProperty.event, (e) => {
                 const new_property = e.target.value;
@@ -454,20 +471,22 @@ const _invokeColorPalet = (event) => {
 
         }
         jscolor.onInput = () => {
-            elementName.style == "background-color" ? event.style.backgroundColor = jscolor.toRGBAString() : "";
-            elementName.style == "color" ? event.style.color = jscolor.toRGBAString() : "";
+            event.style.setProperty(elementName.style, jscolor.toRGBAString(), "important")
         }
     }
 }
 
-const _invokeTextInput = (event) =>{
+const _invokeTextInput = (event) => {
     const text = extractInnerText(event.innerText || event.innerHTML);
-    if(text != ""){
+    if (text != "") {
         const textContainer = document.querySelector("#inspex-text-input-container");
         const textInput = document.querySelector("#inspex-text-type-input");
         textInput.value = text;
-        textInput.addEventListener("input", (e)=>{
+        textInput.addEventListener("input", (e) => {
             event.innerText = e.target.value;
+            if(isDragabble){
+                event.style.setProperty("width", event.getBoundingClientRect().width+"px", "important")
+            }
         })
         textContainer.style.setProperty("display", "block", "important");
     }
@@ -478,21 +497,88 @@ const _closeEvent = () => {
     const mainContainer = document.querySelector("#inspex-color-palet-container");
     const minimized = document.querySelector("#inspex-minimized-window")
     const minmizedCSS = document.querySelector(".minimized-window");
-    closeButton.addEventListener("click", (e)=>{
+    closeButton.addEventListener("click", (e) => {
         minimized.innerHTML = `<p class='inspex-vertical-branding'>Inpex.dev</p>`;
         mainContainer.style.transform = "scale(0)";
-        setTimeout(()=>{
+        setTimeout(() => {
             minmizedCSS.style.setProperty("display", "block", "important")
-        },300)
+        }, 300)
     })
-    minimized.addEventListener("click", (e)=>{
+    minimized.addEventListener("click", (e) => {
         minmizedCSS.style.setProperty("display", "none", "important")
-        setTimeout(()=>{
+        setTimeout(() => {
             mainContainer.style.transform = "scale(1)";
-          
-        },300)
+
+        }, 300)
     })
+
+}
+
+const _footerEvents = (event) => {
+    const computedStyle = window.getComputedStyle(event);
+    const dragabbleCheckbox = document.querySelector("#inspex-dragabble-checkbox");
+    dragabbleCheckbox.addEventListener("change", (e) => {
+
+        if (e.target.checked) {
+            if(event.getAttribute("inspex-drag-container") || event.parentElement.getAttribute("inspex-drag-container")){
+                isDragabble = true;
+                event.parentElement.setAttribute("style", "position: fixed; width:100%; height:100%; top:0; left:0;")
+                event.style.setProperty("width", computedStyle["width"], "important");
+                event.style.setProperty("left", event.getBoundingClientRect().left+"px");
+                event.style.setProperty("top", event.getBoundingClientRect().top+"px")
+                event.style.setProperty("z-index", "10", "important");
+                event.style.setProperty("right", "auto", "important");
+                event.style.setProperty("bottom", "auto", "important");
+                event.style.setProperty("position", "fixed");
+            }else{
+                const div = document.createElement("div");
+                div.setAttribute("inspex-drag-container", "true");
+                div.setAttribute("style", "position: fixed; width:100%; height:100%; top:0; left:0;");
+                isDragabble = true
+                event.style.setProperty("width", computedStyle["width"], "important");
+                event.style.setProperty("left", event.getBoundingClientRect().left+"px");
+                event.style.setProperty("top", event.getBoundingClientRect().top+"px")
+                event.style.setProperty("z-index", "10", "important");
+                event.style.setProperty("right", "auto", "important");
+                event.style.setProperty("bottom", "auto", "important");
+                event.style.setProperty("position", "fixed");
+                event.parentElement.appendChild(div);
+                drabbleFullScreen = div;
+                div.appendChild(event)
     
+            }
+            event.style.setProperty("cursor", "move", "important");
+            event.style.setProperty("outline", "1px solid rgba(235, 86, 142, 1)", "important")
+
+            makeDraggable(event, event, "container");
+        } else {
+            isDragabble = false;
+            event.style.setProperty("cursor", "unset", "important");
+            event.style.setProperty("outline", "none", "important")
+            event.parentElement.setAttribute("style", "");
+        }
+    })
+    event.addEventListener("mousedown", (e) => {
+        e.preventDefault()
+    })
+}
+
+//check parent if X property is applied on parent or not
+const checkFlexParent = (element, properties) => {
+    // Traverse up the DOM hierarchy until we reach the body element
+    while (element && element.tagName !== 'BODY') {
+        // Check if the current element has a computed style
+        const computedStyle = window.getComputedStyle(element);
+        // Check if the computed display style is flex or inline-flex
+        if (properties.includes(computedStyle.display)) {
+            return { isParent: true, parentProperty: computedStyle.display }; // Flex parent is available
+        }
+
+        // Move up to the parent element
+        element = element.parentElement;
+    }
+
+    return { isParent: false }; // Flex parent is not available
 }
 
 //convert rgb to rgba
@@ -525,6 +611,7 @@ const _rgbToRgba = (rgbString) => {
     return rgbString;
 }
 
+//extract inner text from the html elements
 const extractInnerText = (htmlString) => {
     // Create a temporary element to hold the HTML string
     var tempElement = document.createElement('div');
@@ -616,16 +703,18 @@ const createInput = (id, type) => {
 }
 
 // Function to make the container draggable
-const makeDraggable = (element, mainContainer) => {
+const makeDraggable = (element, mainContainer, action) => {
     let isDragging = false;
     let offsetX, offsetY;
 
     // Function to handle mouse down event
     function handleMouseDown(event) {
-        isDragging = true;
-        let rect = mainContainer.getBoundingClientRect();
-        offsetX = event.clientX - rect.left;
-        offsetY = event.clientY - rect.top;
+        if ((isDragabble && action == "container") || action == "inspex-palet") {
+            isDragging = true;
+            let rect = mainContainer.getBoundingClientRect();
+            offsetX = event.clientX - rect.left;
+            offsetY = event.clientY - rect.top;
+        }
     }
 
     // Function to handle mouse move event
@@ -635,8 +724,10 @@ const makeDraggable = (element, mainContainer) => {
             let y = event.clientY - offsetY;
             mainContainer.style.left = x + 'px';
             mainContainer.style.top = y + 'px';
-            localStorage.setItem("inspex-top", mainContainer.style.top)
-            localStorage.setItem("inspex-left", mainContainer.style.left)
+            if (action == "inspex-palet") {
+                localStorage.setItem("inspex-top", mainContainer.style.top)
+                localStorage.setItem("inspex-left", mainContainer.style.left)
+            }
         }
     }
 
@@ -644,8 +735,6 @@ const makeDraggable = (element, mainContainer) => {
     function handleMouseUp() {
         isDragging = false;
     }
-
-    // Add event listeners
     element.addEventListener('mousedown', handleMouseDown);
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);

@@ -226,6 +226,28 @@
         #inspex-text-input-container {
             display: none;
         }
+        .inspex-footer-container{
+            position: absolute;
+            bottom: 0;
+            background-color: #000;
+            padding: 6px !important;
+            width: 100%;
+        }
+
+        .inspex-footer-label{
+            cursor: pointer;
+            color: #fff !important;
+            font-size: 12px;
+            margin-right: 5px !important;
+        }
+        #inspex-dragabble-checkbox{
+            flex: none !important;
+            outline: none !important;
+            accent-color:  rgba(235, 86, 142, 1) !important;
+        }
+        #inspex-dragabble-checkbox:focus{
+            outline: none !important;;
+        }
     </style>
 </head>
 
@@ -292,6 +314,13 @@
                 </div>
             </div>
             <div id="inspex-main-body-container"></div>
+        </div>
+        
+        <div class="inspex-footer-container">
+            <div class="inspex-flex-row inspex-dragabble-checkbox-container">
+                <label for="inspex-dragabble-checkbox" class="inspex-footer-label">Dragabble</label>
+                <input id="inspex-dragabble-checkbox" type="checkbox" />
+            </div>
         </div>
     </div>
 </body>
