@@ -109,7 +109,7 @@
             padding-left: 0 !important;
         }
 
-        .inspex-flex-50:nth-child(even) div .inspex-odd-dropdown-container {
+        .inspex-flex-50:nth-child(even) div .inspex-odd-container {
             padding-left: 10px !important;
         }
 
@@ -163,7 +163,7 @@
             color: red;
         }
 
-        .inspex-odd-dropdown-container {
+        .inspex-odd-container {
             padding-left: 10px !important;
         }
 
@@ -226,7 +226,8 @@
         #inspex-text-input-container {
             display: none;
         }
-        .inspex-footer-container{
+
+        .inspex-footer-container {
             position: absolute;
             bottom: 0;
             background-color: #000;
@@ -234,19 +235,31 @@
             width: 100%;
         }
 
-        .inspex-footer-label{
+        .inspex-footer-label {
             cursor: pointer;
             color: #fff !important;
             font-size: 12px;
             margin-right: 5px !important;
         }
-        #inspex-dragabble-checkbox{
+
+        .inspex-input-checkbox {
             flex: none !important;
             outline: none !important;
-            accent-color:  rgba(235, 86, 142, 1) !important;
         }
-        #inspex-dragabble-checkbox:focus{
-            outline: none !important;;
+
+        
+        .inspex-main-container  .inspex-input-checkbox:focus {
+            outline: none !important;
+            --tw-ring-offset-width: none !important;
+        }
+
+        .inspex-input-checkbox:checked {
+            outline: none !important;
+            background-color: rgba(235, 86, 142, 1) !important;
+        }
+
+        #inspex-lock-height-container {
+            display: none;
         }
     </style>
 </head>
@@ -284,7 +297,7 @@
                                 <input class="inspex-text-input inspex-color-picker" id="inspex-font-color-palet"
                                     data-js="{position: 'right'}" />
                             </div>
-                            <div class="inspex-flex-1 inspex-odd-dropdown-container">
+                            <div class="inspex-flex-1 inspex-odd-container">
                                 <select class="inspex-select-dropdown">
                                     <option value="rgba">RGBA</option>
                                     <option value="hex">HEX</option>
@@ -303,7 +316,7 @@
                                 <input class="inspex-text-input inspex-color-picker" id="inspex-background-color-palet"
                                     data-js="{position: 'right'}" />
                             </div>
-                            <div class="inspex-flex-1 inspex-odd-dropdown-container">
+                            <div class="inspex-flex-1 inspex-odd-container">
                                 <select class="inspex-select-dropdown">
                                     <option value="rgba">RGBA</option>
                                     <option value="hex">HEX</option>
@@ -315,11 +328,17 @@
             </div>
             <div id="inspex-main-body-container"></div>
         </div>
-        
+
         <div class="inspex-footer-container">
             <div class="inspex-flex-row inspex-dragabble-checkbox-container">
-                <label for="inspex-dragabble-checkbox" class="inspex-footer-label">Dragabble</label>
-                <input id="inspex-dragabble-checkbox" type="checkbox" />
+                <div>
+                    <label for="inspex-dragabble-checkbox" class="inspex-footer-label">Dragabble</label>
+                    <input class="inspex-input-checkbox" id="inspex-dragabble-checkbox" type="checkbox" />
+                </div>
+                <div class="inspex-odd-container" id="inspex-lock-height-container">
+                    <label for="inspex-dragabble-lock-height-checkbox" class="inspex-footer-label">Lock Height</label>
+                    <input class="inspex-input-checkbox" id="inspex-dragabble-lock-height-checkbox" type="checkbox" />
+                </div>
             </div>
         </div>
     </div>

@@ -433,7 +433,7 @@ const _populateInputElements = (supportingProperties, bodyContainer, domSelector
                 inputElement.value = filteredStyle.number;
                 inputDiv.appendChild(inputElement)
 
-                const dropdownDiv = createDivWithClasses('inspex-flex-1 inspex-odd-dropdown-container');
+                const dropdownDiv = createDivWithClasses('inspex-flex-1 inspex-odd-container');
                 const inputDropdown = createSelect(section.unitId, _UNITS);
                 inputDropdown.value = filteredStyle.unit;
 
@@ -484,8 +484,8 @@ const _invokeTextInput = (event) => {
         textInput.value = text;
         textInput.addEventListener("input", (e) => {
             event.innerText = e.target.value;
-            if(isDragabble){
-                event.style.setProperty("width", event.getBoundingClientRect().width+"px", "important")
+            if (isDragabble) {
+                event.style.setProperty("width", event.getBoundingClientRect().width + "px", "important")
             }
         })
         textContainer.style.setProperty("display", "block", "important");
@@ -517,38 +517,68 @@ const _closeEvent = () => {
 const _footerEvents = (event) => {
     const computedStyle = window.getComputedStyle(event);
     const dragabbleCheckbox = document.querySelector("#inspex-dragabble-checkbox");
+    const draggableLockHeightContainer = document.querySelector("#inspex-lock-height-container")
+    const draggableLockHeightCheckbox = document.querySelector("#inspex-dragabble-lock-height-checkbox");
+    let isLockHeight = false;
     dragabbleCheckbox.addEventListener("change", (e) => {
-
+        draggableLockHeightContainer.style.setProperty("display", "block");
+        const blankdiv = document.createElement("div");
         if (e.target.checked) {
-            if(event.getAttribute("inspex-drag-container") || event.parentElement.getAttribute("inspex-drag-container")){
+            if (event.getAttribute("inspex-drag-container") || event.parentElement.getAttribute("inspex-drag-container")) {
                 isDragabble = true;
                 event.parentElement.setAttribute("style", "position: fixed; width:100%; height:100%; top:0; left:0;")
                 event.style.setProperty("width", computedStyle["width"], "important");
-                event.style.setProperty("left", event.getBoundingClientRect().left+"px");
-                event.style.setProperty("top", event.getBoundingClientRect().top+"px")
+                event.style.setProperty("left", event.getBoundingClientRect().left + "px");
+                event.style.setProperty("top", event.getBoundingClientRect().top + "px")
                 event.style.setProperty("z-index", "10", "important");
                 event.style.setProperty("right", "auto", "important");
                 event.style.setProperty("bottom", "auto", "important");
                 event.style.setProperty("position", "fixed");
-            }else{
+                const lockHideIdContaner = document.querySelector(`#${event.parentElement?.getAttribute("inspex-lock-height-id")}`);
+                if (lockHideIdContaner.style.height != "auto" && lockHideIdContaner.style.height != "") {
+                    draggableLockHeightCheckbox.checked = true;
+                    draggableLockHeightCheckbox.value = event.parentElement?.getAttribute("inspex-lock-height-id");
+                }
+                draggableLockHeightCheckbox.addEventListener("change", (e) => {
+                    if (e.target.checked) {
+                        lockHideIdContaner.style.setProperty("height", event.getBoundingClientRect().height + "px", "important")
+                    } else {
+                        lockHideIdContaner.style.setProperty("height", "auto", "important")
+                    }
+                })
+            } else {
                 const div = document.createElement("div");
+                const uniqueId = `inspex-lock-height-${Date.now()}`
+                blankdiv.setAttribute("style", `width: ${event.getBoundingClientRect().width}px;`)
+                blankdiv.id = uniqueId
+                draggableLockHeightCheckbox.value = uniqueId;
                 div.setAttribute("inspex-drag-container", "true");
+                div.setAttribute("inspex-lock-height-id", uniqueId)
                 div.setAttribute("style", "position: fixed; width:100%; height:100%; top:0; left:0;");
                 isDragabble = true
                 event.style.setProperty("width", computedStyle["width"], "important");
-                event.style.setProperty("left", event.getBoundingClientRect().left+"px");
-                event.style.setProperty("top", event.getBoundingClientRect().top+"px")
+                event.style.setProperty("left", event.getBoundingClientRect().left + "px");
+                event.style.setProperty("top", event.getBoundingClientRect().top + "px")
                 event.style.setProperty("z-index", "10", "important");
                 event.style.setProperty("right", "auto", "important");
                 event.style.setProperty("bottom", "auto", "important");
                 event.style.setProperty("position", "fixed");
                 event.parentElement.appendChild(div);
-                drabbleFullScreen = div;
+                event.insertAdjacentElement("afterend", blankdiv);
                 div.appendChild(event)
-    
+                draggableLockHeightCheckbox.addEventListener("change", (e) => {
+                    if (e.target.checked) {
+                        blankdiv.style.setProperty("height", event.getBoundingClientRect().height + "px", "important");
+                    } else {
+                        blankdiv.style.setProperty("height", "auto", "important");
+                    }
+                })
+
+
             }
             event.style.setProperty("cursor", "move", "important");
             event.style.setProperty("outline", "1px solid rgba(235, 86, 142, 1)", "important")
+
 
             makeDraggable(event, event, "container");
         } else {
@@ -556,8 +586,10 @@ const _footerEvents = (event) => {
             event.style.setProperty("cursor", "unset", "important");
             event.style.setProperty("outline", "none", "important")
             event.parentElement.setAttribute("style", "");
+            draggableLockHeightContainer.style.setProperty("display", "none", "important");
         }
     })
+
     event.addEventListener("mousedown", (e) => {
         e.preventDefault()
     })
