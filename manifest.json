@@ -1,23 +1,22 @@
 {
     "manifest_version": 3,
     "name": "Inspex",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "background": {
-        "service_worker": "service_worker.js",
-        "type": "module"
+        "service_worker": "service_worker.js"
     },
     "action": {
-        "default_popup": "index.html"
+        "type": "module"
     },
     "content_scripts":[{
-        "js": ["contentScript.js","jscolor.min.js"],
-        "matches":  [
-            "http://*/*",
-            "https://*/*"
-        ]
+        "js": ["contentScript.js", "jscolor.min.js"],
+        "matches":  ["*://*/*"],
+        "type": "module"
     }],
     "permissions": [
-        "scripting"
+        "scripting",
+        "storage",
+        "tabs"
     ],
     "host_permissions": [
         "http://*/*",
@@ -26,10 +25,7 @@
     "web_accessible_resources": [
         {
             "resources": ["content.html", "content-style.css"],
-            "matches": [
-                "http://*/*",
-                "https://*/*"
-            ]
+            "matches": ["*://*/*"]
         }
     ]
 }
