@@ -420,6 +420,131 @@ const _GRID_ = [
 
 const _CSS_ = [
     {
+        sectionName: "Container Alignment",
+        sectionId: "inspex-container-alignment-container",
+        bodySectionId: "inspex-container-alignment-body-container",
+        sectionProperties: {
+            supportingProperties:
+                [
+                    {
+                        paletName: "Width",
+                        style: "width",
+                        isMultiple: true,
+                        numberId: "#inspex-width-dropdown",
+                        unitId: "#inspex-width-unit"
+                    },
+                    {
+                        paletName: "Height",
+                        style: "height",
+                        isMultiple: true,
+                        numberId: "#inspex-height-dropdown",
+                        unitId: "#inspex-height-unit"
+                    },
+
+                    {
+                        paletName: "Padding",
+                        style: "padding",
+                        type: "input",
+                        styleValues: [],
+                        id: "inspex-padding-input",
+                        isMultiple: false,
+                        event: "input",
+                        inputType: "text"
+                    },
+                    {
+                        paletName: "Margin",
+                        style: "margin",
+                        type: "input",
+                        styleValues: [],
+                        id: "inspex-margin-input",
+                        isMultiple: false,
+                        event: "input",
+                        inputType: "text"
+                    },
+                    {
+                        paletName: "Border",
+                        style: "border",
+                        type: "input",
+                        styleValues: [],
+                        id: "inspex-border-input",
+                        isMultiple: false,
+                        event: "input",
+                        inputType: "text"
+                    },
+                    {
+                        paletName: "Border Radius",
+                        style: "border-radius",
+                        type: "input",
+                        styleValues: [],
+                        id: "inspex-border-radius-input",
+                        isMultiple: false,
+                        event: "input",
+                        inputType: "text"
+                    },
+                    {
+                        paletName: "Position",
+                        style: "position",
+                        type: "select",
+                        styleValues: [
+                            "static",
+                            "relative",
+                            "absolute",
+                            "fixed",
+                            "sticky",
+                            "inherit",
+                            "initial",
+                            "revert",
+                            "revert-layer",
+                            "unset"
+                        ],
+                        id: "inspex-position-item",
+                        isMultiple: false,
+                        event: "change"
+                    },
+                    {
+                        paletName: "Z-Index",
+                        style: "z-index",
+                        type: "input",
+                        styleValues: [],
+                        id: "inspex-z-index-input",
+                        isMultiple: false,
+                        event: "input",
+                        inputType: "number"
+                    },
+                    {
+                        paletName: "Top",
+                        style: "top",
+                        isMultiple: true,
+                        numberId: "#inspex-top-dropdown",
+                        unitId: "#inspex-top-unit"
+                    },
+                    {
+                        paletName: "Right",
+                        style: "right",
+                        isMultiple: true,
+                        numberId: "#inspex-right-dropdown",
+                        unitId: "#inspex-right-unit"
+                    },
+                    {
+                        paletName: "Bottom",
+                        style: "bottom",
+                        isMultiple: true,
+                        numberId: "#inspex-bottom-dropdown",
+                        unitId: "#inspex-bottom-unit"
+                    },
+                    {
+                        paletName: "Left",
+                        style: "left",
+                        isMultiple: true,
+                        numberId: "#inspex-left-dropdown",
+                        unitId: "#inspex-left-unit"
+                    },
+                    
+                  
+                ]
+        }
+    },
+    {
         sectionName: "Display Properties",
         sectionId: "inspex-all-display-container",
         bodySectionId: "inspex-display-body-container",
@@ -448,7 +573,7 @@ const _CSS_ = [
         }
     },
     {
-        sectionName: "Text",
+        sectionName: "Text Properties",
         sectionId: "inspex-all-text-container",
         bodySectionId: "inspex-text-body-container",
         sectionProperties: {
@@ -636,6 +761,8 @@ const _init = () => {
     }
 }
 
+const changedStyles = {};
+
 
 const _invokeStylePalet = (event) => {
 
@@ -685,6 +812,43 @@ const _invokeStylePalet = (event) => {
             makeDraggable(dragContainer, container, "inspex-palet");
             _closeEvent();
             _footerEvents(event);
+
+            const cssButton = document.querySelector("#inspex-copy-css");
+            cssButton.addEventListener("click", (e)=>{
+                console.log("CSS CLICKED", changedStyles)
+                const bodyContainer = document.querySelector(".inspex-body-container");
+                bodyContainer.style.display = "none";
+
+                const generatedCSS = document.querySelector(".inspex-generated-css");
+                generatedCSS.style.display = "block";
+                
+                const textArea = document.querySelector("#inspex-textarea-css");
+                let cssString = '{\n';
+                for (const key in changedStyles) {
+                  cssString += `  ${key}: ${changedStyles[key]};\n`;
+                }
+                cssString += '}';
+                textArea.innerHTML = cssString
+                const copyButton = document.querySelector('#inspex-css-copy-btn');
+                copyButton.addEventListener('click', function () {
+                    textArea.select();
+                    navigator.clipboard.writeText(cssString);
+                    copyButton.innerHTML = "Copied"
+                    copyButton.classList.add("inspex-copied-btn")
+                    setTimeout(()=>{
+                        copyButton.classList.remove("inspex-copied-btn");
+                        copyButton.innerHTML = "Copy";
+                    },3000
+                )
+                const backButton = document.querySelector("#inspex-css-back-btn");
+                backButton.addEventListener("click", ()=>{
+                    generatedCSS.style.display = "none";
+                    bodyContainer.style.display = "block";
+                })
+                });
+
+            })
+          
         })
         .catch(error => console.error('Error fetching inner content:', error));
 
@@ -707,7 +871,7 @@ const _generateHTML = (domSelector) => {
         const bodyContainer = createDivWithId(section.bodySectionId);
         const mainSectionContainer = createDivWithId(section.sectionId);
         const parentDiv = createDivWithClasses("inspex-accordion-container");
-        mainSectionContainer.classList.add("inspex-section-container", "inspex-accordion-item")
+        mainSectionContainer.classList.add("inspex-accordion-item", "inspex-section-container")
         const headerContainer = createDivWithClasses("inspex-accordion-header");
         const sectionHeading = document.createElement("span");
         sectionHeading.classList.add("inspex-accordion-header-text");
@@ -730,6 +894,7 @@ const _generateHTML = (domSelector) => {
             const mainPropertyCurrentStyle = domSelectorStyles[mainProperty?.style];
             let inputElement;
             const flex1Col = createDivWithClasses('inspex-palet');
+            flex1Col.style.setProperty("padding-bottom", "5px", "important")
             flex1Col.appendChild(createLabel(mainProperty?.paletName, mainProperty?.id));
 
             if (mainProperty?.type == "select") {
@@ -748,6 +913,7 @@ const _generateHTML = (domSelector) => {
             _populateInputElements(supportingProperties[mainPropertyCurrentStyle], bodyContainer, domSelector);
             inputElement.addEventListener(mainProperty.event, (e) => {
                 const new_property = e.target.value;
+                changedStyles[mainProperty.style] = e.target.value
                 domSelector.style.setProperty(mainProperty.style, new_property, "important");
                 _populateInputElements(supportingProperties[new_property], bodyContainer, domSelector);
             })
@@ -762,14 +928,14 @@ const _generateHTML = (domSelector) => {
     }
 
     const accordionHeaders = document.querySelectorAll('.inspex-accordion-header');
-    
-    for(let [index,header] of accordionHeaders.entries()){
+
+    for (let [index, header] of accordionHeaders.entries()) {
         header.addEventListener('click', function () {
             const accordionItem = this.parentElement;
             const accordionContent = this.nextElementSibling;
             const arrow = header.querySelector(".inspex-accordion-arrow");
-
-            if (accordionContent.style.display != 'none') {
+            const display = getComputedStyle(accordionContent);
+            if (display["display"] != 'none') {
                 accordionContent.style.display = 'none';
                 arrow.style.transform = "rotate(180deg)";
             } else {
@@ -801,6 +967,7 @@ const _populateInputElements = (supportingProperties, bodyContainer, domSelector
                 inputElement = createSelect(section.id, section.styleValues);
                 inputElement.value = selectorStyle;
                 inputElement.addEventListener(section.event, (e) => {
+                    changedStyles[section.style] = e.target.value+" !important"
                     domSelector.style.setProperty(section.style, e.target.value, "important")
                 })
                 divInput.appendChild(inputElement);
@@ -815,6 +982,7 @@ const _populateInputElements = (supportingProperties, bodyContainer, domSelector
                 inputElement = createInput(section.id, section.inputType);
                 inputElement.value = selectorStyle;
                 inputElement.addEventListener(section.event, (e) => {
+                    changedStyles[section.style] = e.target.value+" !important"
                     domSelector.style.setProperty(section.style, e.target.value, "important")
                 })
                 divInput.appendChild(inputElement);
@@ -835,10 +1003,12 @@ const _populateInputElements = (supportingProperties, bodyContainer, domSelector
                 inputDropdown.value = filteredStyle.unit;
 
                 inputDropdown.addEventListener("input", (e) => {
+                    changedStyles[section.style] = `${inputElement.value}${e.target.value} !important`
                     domSelector.style.setProperty(section.style, `${inputElement.value}${e.target.value}`, "important");
                 })
 
                 inputElement.addEventListener("input", (e) => {
+                    changedStyles[section.style] = `${e.target.value}${inputDropdown.value} !important`
                     domSelector.style.setProperty(section.style, `${e.target.value}${inputDropdown.value}`, "important");
                 })
 
