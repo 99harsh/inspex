@@ -750,6 +750,15 @@ const _init = () => {
                 container[0].removeEventListener("mouseout", mouseOut);
                 container[0].removeEventListener("click", mouseClick);
                 document.removeEventListener("click", documentClickEvent)
+                const isExist = document.getElementById("inspex-color-palet-container");
+                const isExitMinimize = document.getElementById("inspex-minimized-window");
+                if (isExist) {
+                    isExist.remove();
+                }
+            
+                if (isExitMinimize) {
+                    isExitMinimize.remove();
+                }
             } else {
                 container[0].addEventListener('mouseover', moveOver);
                 // Add event listener for mouseout on the container
