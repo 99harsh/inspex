@@ -7,12 +7,29 @@
     <title>Inspex</title>
 
     <style>
+        .inspex-body {
+            -webkit-touch-callout: none;
+            /* iOS Safari */
+            -webkit-user-select: none;
+            /* Chrome/Safari/Opera */
+            -khtml-user-select: none;
+            /* Konqueror */
+            -moz-user-select: none;
+            /* Firefox */
+            -ms-user-select: none;
+            /* Internet Explorer/Edge*/
+            user-select: none;
+        }
+
         .inspex-main-container * {
             padding: 0px !important;
             margin: 0px !important;
             line-height: normal !important;
             transition: all 0.3s ease;
+
         }
+
+        .inspex-main-container {}
 
         .inspex-main-container input:focus,
         .inspex-main-container select:focus {
@@ -276,6 +293,7 @@
             display: block;
             width: 100%;
             display: flex;
+            color: #000;
             justify-content: space-between;
         }
 
@@ -389,7 +407,7 @@
                             </div>
                             <div class="inspex-flex-1 inspex-flex-row inspex-odd-container">
                                 <div class="inspex-flex-1">
-                                    <input type="text" class="inspex-text-input"  id="inspex-font-hex-palet"/>
+                                    <input type="text" class="inspex-text-input" id="inspex-font-hex-palet" />
                                 </div>
                                 <div class="inspex-odd-container">
                                     <button id="inspex-font-hex-copy">
@@ -423,7 +441,7 @@
                             </div>
                             <div class="inspex-flex-row inspex-odd-container inspex-flex-1">
                                 <div class="inspex-flex-1">
-                                    <input type="text" class="inspex-text-input" id="inspex-background-hex-palet"/>
+                                    <input type="text" class="inspex-text-input" id="inspex-background-hex-palet" />
                                 </div>
                                 <div class="inspex-odd-container">
                                     <button id="inspex-background-hex-copy">

@@ -8,11 +8,24 @@
     "action": {
         "type": "module"
     },
-    "content_scripts":[{
-        "js": ["contentScript.js", "jscolor.min.js"],
-        "matches":  ["*://*/*"],
-        "type": "module"
-    }],
+    "icons": {
+        "16": "icon.png",
+        "32": "icon.png",
+        "48": "icon.png",
+        "128": "icon.png"
+    },
+    "content_scripts": [
+        {
+            "js": [
+                "contentScript.js",
+                "jscolor.min.js"
+            ],
+            "matches": [
+                "*://*/*"
+            ],
+            "type": "module"
+        }
+    ],
     "permissions": [
         "scripting",
         "storage",
@@ -24,8 +37,13 @@
     ],
     "web_accessible_resources": [
         {
-            "resources": ["content.html", "content-style.css"],
-            "matches": ["*://*/*"]
+            "resources": [
+                "content.html",
+                "content-style.css"
+            ],
+            "matches": [
+                "*://*/*"
+            ]
         }
     ]
 }

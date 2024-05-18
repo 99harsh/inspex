@@ -754,12 +754,14 @@ const _init = () => {
                 const isExitMinimize = document.getElementById("inspex-minimized-window");
                 if (isExist) {
                     isExist.remove();
+                    container[0].classList.remove("inspex-body")
                 }
             
                 if (isExitMinimize) {
                     isExitMinimize.remove();
                 }
             } else {
+                container[0].classList.add("inspex-body");
                 container[0].addEventListener('mouseover', moveOver);
                 // Add event listener for mouseout on the container
                 container[0].addEventListener('mouseout', mouseOut);
