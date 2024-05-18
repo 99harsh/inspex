@@ -9,10 +9,16 @@ chrome.runtime.onInstalled.addListener(() => {
         _UNITS: ["px", "%", "rem", "em", "vh", "vw", "vmin", "vmax", "ch", "ex", "cm", "mm", "in", "pt", "pc"],
         _COLORPALETS: [{
             selector: "inspex-font-color-palet",
+            hexSelector: "inspex-font-hex-palet",
+            rgbaCopy: "inspex-font-rgba-copy",
+            hexCopy: "inspex-font-hex-copy",
             style: "color"
         },
         {
             selector: "inspex-background-color-palet",
+            hexSelector: "inspex-background-hex-palet",
+            rgbaCopy: "inspex-background-rgba-copy",
+            hexCopy: "inspex-background-hex-copy",
             style: "background-color"
         }],
 

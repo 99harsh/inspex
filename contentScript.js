@@ -817,7 +817,7 @@ const _invokeStylePalet = (event) => {
 
             // Make the container draggable
             _generateHTML(event);
-            _invokeColorPalet(event)
+            _invokeColorPalet(event, 'hex')
             makeDraggable(dragContainer, container, "inspex-palet");
             _closeEvent();
             _footerEvents(event);
@@ -849,12 +849,14 @@ const _invokeStylePalet = (event) => {
                         copyButton.innerHTML = "Copy";
                     },3000
                 )
+             
+                });
+
                 const backButton = document.querySelector("#inspex-css-back-btn");
                 backButton.addEventListener("click", ()=>{
                     generatedCSS.style.display = "none";
                     bodyContainer.style.display = "block";
                 })
-                });
 
             })
           
@@ -1038,17 +1040,40 @@ const _populateInputElements = (supportingProperties, bodyContainer, domSelector
     }
 }
 
-const _invokeColorPalet = (event) => {
+const _invokeColorPalet = (event, format) => {
     const domSelectorStyles = getComputedStyle(event);
     for (let elementName of _COLORPALETS) {
         const inputColor = domSelectorStyles[elementName.style]
-        const jscolor = new JSColor(`#${elementName.selector}`, { preset: 'large', position: 'right', value: _rgbToRgba(inputColor) })
+        const hexInputPalet = document.getElementById(elementName.hexSelector);
+        const rgbaCopy = document.getElementById(elementName.rgbaCopy);
+        const hexCopy = document.getElementById(elementName.hexCopy);
+        const rgbaColor = _rgbToRgba(inputColor);
+        hexInputPalet.value = _rgbaToHex(rgbaColor)
+        let jscolor = new JSColor(`#${elementName.selector}`, { preset: 'large', position: 'right', value: rgbaColor })
         jscolor.onChange = () => {
-
+            hexInputPalet.value = jscolor.toHEXAString();
         }
         jscolor.onInput = () => {
-            event.style.setProperty(elementName.style, jscolor.toRGBAString(), "important")
+            event.style.setProperty(elementName.style, jscolor.toRGBAString(), "important");
+            changedStyles[elementName.style] = jscolor.toHEXAString();
         }
+
+        rgbaCopy.addEventListener("click", (e) => {
+            rgbaCopy.classList.add("inspex-copied-color-palet")
+            navigator.clipboard.writeText(jscolor.toRGBAString());
+            setTimeout(() => {
+                rgbaCopy.classList.remove("inspex-copied-color-palet");
+            }, 3000)
+        })
+        hexCopy.addEventListener("click", (e) => {
+            hexCopy.classList.add("inspex-copied-color-palet")
+            navigator.clipboard.writeText(hexInputPalet.value);
+            setTimeout(() => {
+                hexCopy.classList.remove("inspex-copied-color-palet");
+            }, 3000)
+        })
+
+
     }
 }
 
@@ -1217,6 +1242,17 @@ const _rgbToRgba = (rgbString) => {
     }
     // If color is already in RGBA format with alpha not equal to 0, return it unchanged
     return rgbString;
+}
+
+const _rgbaToHex = (rgbaString, forceRemoveAlpha = false) => {
+        return "#" + rgbaString.replace(/^rgba?\(|\s+|\)$/g, '') // Get's rgba / rgb string values
+          .split(',') // splits them at ","
+          .filter((string, index) => !forceRemoveAlpha || index !== 3)
+          .map(string => parseFloat(string)) // Converts them to numbers
+          .map((number, index) => index === 3 ? Math.round(number * 255) : number) // Converts alpha to 255 number
+          .map(number => number.toString(16)) // Converts numbers to hex
+          .map(string => string.length === 1 ? "0" + string : string) // Adds 0 when length of one number is 1
+          .join("") // Puts the array to togehter to a string
 }
 
 //extract inner text from the html elements
