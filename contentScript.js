@@ -772,7 +772,7 @@ const _init = () => {
                 document.removeEventListener("click", documentClickEvent)
                 const isExist = document.getElementById("inspex-color-palet-container");
                 const isExitMinimize = document.getElementById("inspex-minimized-window");
-                if (isExist) {
+                if(isExist) {
                     isExist.remove();
                     container[0].classList.remove("inspex-body")
                 }
@@ -808,8 +808,22 @@ const _init_socket = () => {
             socket.send(JSON.stringify({event: "join_room", client_id: "CL001", room_id: urlParams.get("inspex-join")}))
         }else{
             room_owner = "host";
-            const domString = document.body.outerHTML;
-            socket.send(JSON.stringify({ event: "create_room", client_id: "CL001", dom: domString}));
+            const bodyClone = document.body.cloneNode(true);
+          
+            // Remove script tags from the cloned body
+            const scripts = Array.from(bodyClone.querySelectorAll('script'));
+            scripts.forEach(script => script.remove());
+
+            const link = Array.from(bodyClone.querySelectorAll('link'));
+            link.forEach(link => link.remove());
+
+            const iframe = Array.from(bodyClone.querySelectorAll('iframe'));
+            iframe.forEach(iframe => iframe.remove());
+          
+            // Get the HTML of the cloned body without scripts
+            const bodyWithoutScripts = bodyClone.innerHTML;
+          
+            socket.send(JSON.stringify({ event: "create_room", client_id: "CL001", dom: bodyWithoutScripts}));
         }
 
     });
@@ -819,10 +833,30 @@ const _init_socket = () => {
         const data = JSON.parse(event.data);
         if(data.event == "exchange_dom"){
             room_id = data.room_id;
-            applyUpdatedDom(data.processed_dom);
+            // applyUpdatedDom(data.processed_dom);
+            const body = document.body;
+            const elements = Array.from(body.childNodes);
+            const tags = ["script", "link", "iframe", "style"];
+            elements.forEach(element => {
+              if (element.nodeType === Node.ELEMENT_NODE && !tags.includes(element.tagName.toLowerCase())) {
+                body.removeChild(element);
+                console.log("element", element.tagName)
+              }
+
+            });
+
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = data.processed_dom;
+
+            // Insert the new content at the beginning of the body
+            while (tempDiv.firstChild) {
+                body.insertBefore(tempDiv.firstChild, body.firstChild);
+            }
+
         }else if(data.event == "listen_change"){
             console.log("EVENT", data);
             const targetDiv = document.querySelector([`[data-unique-id="${data.unique_id}"]`]);
+        
             if(targetDiv){
                 for(let style of data.styles){
                     targetDiv.style.setProperty(style.name, style.style);
