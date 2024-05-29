@@ -3,6 +3,9 @@ let _UNITS = [];
 let _COLORPALETS = []
 let isDragabble = false;
 let drabbleFullScreen = "";
+let socket = "";
+let room_id = "";
+let prevHoverId = "";
 const _FLEX_ = [{
     paletName: "Flex Direction",
     style: "flex-direction",
@@ -539,8 +542,8 @@ const _CSS_ = [
                         numberId: "#inspex-left-dropdown",
                         unitId: "#inspex-left-unit"
                     },
-                    
-                  
+
+
                 ]
         }
     },
@@ -690,6 +693,8 @@ const _CSS_ = [
     }
 ]
 
+let room_owner = "host";
+
 const _init = () => {
     chrome.storage.sync.get(null, (result) => {
         _HTMLTEXTELEMENTS = result._HTMLTEXTELEMENTS
@@ -697,6 +702,8 @@ const _init = () => {
         _COLORPALETS = result._COLORPALETS
         //  _CSS_ = result._CSS_
     });
+
+   
 
     const container = document.getElementsByTagName('body');
     if (container) {
@@ -712,9 +719,17 @@ const _init = () => {
 
         const moveOver = (event) => {
             if (event.target && !hasAncestor(event.target, 'inspex-root-container', "jscolor-wrap", "inspex-minimized-window") && !isDragabble) {
-                event.target.style.cursor = "pointer";
-                event.target.style.outline = '1px solid red';
-
+                const unique_id = event.target.getAttribute("data-unique-id");
+                if(unique_id != prevHoverId){
+                    event.target.style.cursor = "pointer";
+                    event.target.style.outline = "1px solid yellow";
+                    const styles = [{name: "cursor", style: "pointer"}, {name: "outline", style: "1px solid red"}];
+                    if(socket != ""){
+                        socket.send(JSON.stringify({unique_id, styles, room_owner, event: "listen_change", room_id}));
+                    }
+                    prevHoverId = unique_id;
+                }
+               
             }
         }
 
@@ -722,6 +737,11 @@ const _init = () => {
             if (event.target && !hasAncestor(event.target, 'inspex-root-container', "jscolor-wrap", "inspex-minimized-window") && !isDragabble) {
                 event.target.style.cursor = "unset";
                 event.target.style.outline = 'none';
+                const unique_id = event.target.getAttribute("data-unique-id");
+                const styles = [{name: "cursor", style: "unset"}, {name: "outline", style: "none"}];
+                if(socket != ""){
+                    socket.send(JSON.stringify({unique_id, styles, room_owner, event: "listen_change", room_id}));
+                }
             }
         }
 
@@ -756,11 +776,12 @@ const _init = () => {
                     isExist.remove();
                     container[0].classList.remove("inspex-body")
                 }
-            
+
                 if (isExitMinimize) {
                     isExitMinimize.remove();
                 }
             } else {
+                _init_socket()
                 container[0].classList.add("inspex-body");
                 container[0].addEventListener('mouseover', moveOver);
                 // Add event listener for mouseout on the container
@@ -773,6 +794,50 @@ const _init = () => {
 }
 
 const changedStyles = {};
+
+
+const _init_socket = () => {
+     socket = new WebSocket("wss://7cb1-103-184-236-94.ngrok-free.app");
+    socket.addEventListener('open', () => {
+        console.log('Connected to the WebSocket server');
+        const url = window.location.href;
+        urlParams = new URLSearchParams(url.split('?')[1]);
+        if(urlParams.get("inspex-join") != null){
+            room_owner = "client";
+            room_id = urlParams.get("inspex-join");
+            socket.send(JSON.stringify({event: "join_room", client_id: "CL001", room_id: urlParams.get("inspex-join")}))
+        }else{
+            room_owner = "host";
+            const domString = document.body.outerHTML;
+            socket.send(JSON.stringify({ event: "create_room", client_id: "CL001", dom: domString}));
+        }
+
+    });
+
+
+    socket.addEventListener('message', (event) => {
+        const data = JSON.parse(event.data);
+        if(data.event == "exchange_dom"){
+            room_id = data.room_id;
+            applyUpdatedDom(data.processed_dom);
+        }else if(data.event == "listen_change"){
+            console.log("EVENT", data);
+            const targetDiv = document.querySelector([`[data-unique-id="${data.unique_id}"]`]);
+            if(targetDiv){
+                for(let style of data.styles){
+                    targetDiv.style.setProperty(style.name, style.style);
+                }
+            }
+            
+        }
+    });
+}
+
+function applyUpdatedDom(updatedDomString) {
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = updatedDomString;
+    document.body.innerHTML = tempDiv.innerHTML;
+  }
 
 
 const _invokeStylePalet = (event) => {
@@ -825,18 +890,18 @@ const _invokeStylePalet = (event) => {
             _footerEvents(event);
 
             const cssButton = document.querySelector("#inspex-copy-css");
-            cssButton.addEventListener("click", (e)=>{
+            cssButton.addEventListener("click", (e) => {
                 console.log("CSS CLICKED", changedStyles)
                 const bodyContainer = document.querySelector(".inspex-body-container");
                 bodyContainer.style.display = "none";
 
                 const generatedCSS = document.querySelector(".inspex-generated-css");
                 generatedCSS.style.display = "block";
-                
+
                 const textArea = document.querySelector("#inspex-textarea-css");
                 let cssString = '{\n';
                 for (const key in changedStyles) {
-                  cssString += `  ${key}: ${changedStyles[key]};\n`;
+                    cssString += `  ${key}: ${changedStyles[key]};\n`;
                 }
                 cssString += '}';
                 textArea.innerHTML = cssString
@@ -846,22 +911,22 @@ const _invokeStylePalet = (event) => {
                     navigator.clipboard.writeText(cssString);
                     copyButton.innerHTML = "Copied"
                     copyButton.classList.add("inspex-copied-btn")
-                    setTimeout(()=>{
+                    setTimeout(() => {
                         copyButton.classList.remove("inspex-copied-btn");
                         copyButton.innerHTML = "Copy";
-                    },3000
-                )
-             
+                    }, 3000
+                    )
+
                 });
 
                 const backButton = document.querySelector("#inspex-css-back-btn");
-                backButton.addEventListener("click", ()=>{
+                backButton.addEventListener("click", () => {
                     generatedCSS.style.display = "none";
                     bodyContainer.style.display = "block";
                 })
 
             })
-          
+
         })
         .catch(error => console.error('Error fetching inner content:', error));
 
@@ -980,7 +1045,7 @@ const _populateInputElements = (supportingProperties, bodyContainer, domSelector
                 inputElement = createSelect(section.id, section.styleValues);
                 inputElement.value = selectorStyle;
                 inputElement.addEventListener(section.event, (e) => {
-                    changedStyles[section.style] = e.target.value+" !important"
+                    changedStyles[section.style] = e.target.value + " !important"
                     domSelector.style.setProperty(section.style, e.target.value, "important")
                 })
                 divInput.appendChild(inputElement);
@@ -995,7 +1060,7 @@ const _populateInputElements = (supportingProperties, bodyContainer, domSelector
                 inputElement = createInput(section.id, section.inputType);
                 inputElement.value = selectorStyle;
                 inputElement.addEventListener(section.event, (e) => {
-                    changedStyles[section.style] = e.target.value+" !important"
+                    changedStyles[section.style] = e.target.value + " !important"
                     domSelector.style.setProperty(section.style, e.target.value, "important")
                 })
                 divInput.appendChild(inputElement);
@@ -1247,14 +1312,14 @@ const _rgbToRgba = (rgbString) => {
 }
 
 const _rgbaToHex = (rgbaString, forceRemoveAlpha = false) => {
-        return "#" + rgbaString.replace(/^rgba?\(|\s+|\)$/g, '') // Get's rgba / rgb string values
-          .split(',') // splits them at ","
-          .filter((string, index) => !forceRemoveAlpha || index !== 3)
-          .map(string => parseFloat(string)) // Converts them to numbers
-          .map((number, index) => index === 3 ? Math.round(number * 255) : number) // Converts alpha to 255 number
-          .map(number => number.toString(16)) // Converts numbers to hex
-          .map(string => string.length === 1 ? "0" + string : string) // Adds 0 when length of one number is 1
-          .join("") // Puts the array to togehter to a string
+    return "#" + rgbaString.replace(/^rgba?\(|\s+|\)$/g, '') // Get's rgba / rgb string values
+        .split(',') // splits them at ","
+        .filter((string, index) => !forceRemoveAlpha || index !== 3)
+        .map(string => parseFloat(string)) // Converts them to numbers
+        .map((number, index) => index === 3 ? Math.round(number * 255) : number) // Converts alpha to 255 number
+        .map(number => number.toString(16)) // Converts numbers to hex
+        .map(string => string.length === 1 ? "0" + string : string) // Adds 0 when length of one number is 1
+        .join("") // Puts the array to togehter to a string
 }
 
 //extract inner text from the html elements
