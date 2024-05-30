@@ -6,6 +6,11 @@ let drabbleFullScreen = "";
 let socket = "";
 let room_id = "";
 let prevHoverId = "";
+let selectedId = "";
+let lockId = "";
+let room_owner = "host";
+const changedStyles = {};
+
 const _FLEX_ = [{
     paletName: "Flex Direction",
     style: "flex-direction",
@@ -693,7 +698,6 @@ const _CSS_ = [
     }
 ]
 
-let room_owner = "host";
 
 const _init = () => {
     chrome.storage.sync.get(null, (result) => {
@@ -703,7 +707,7 @@ const _init = () => {
         //  _CSS_ = result._CSS_
     });
 
-   
+
 
     const container = document.getElementsByTagName('body');
     if (container) {
@@ -718,40 +722,54 @@ const _init = () => {
         }
 
         const moveOver = (event) => {
-            if (event.target && !hasAncestor(event.target, 'inspex-root-container', "jscolor-wrap", "inspex-minimized-window") && !isDragabble) {
-                const unique_id = event.target.getAttribute("data-unique-id");
-                if(unique_id != prevHoverId){
+            const unique_id = event.target.getAttribute("data-unique-id");
+            if (event.target && !hasAncestor(event.target, 'inspex-root-container', "jscolor-wrap", "inspex-minimized-window") && !isDragabble && unique_id != selectedId && lockId != unique_id) {
+                if (unique_id != prevHoverId) {
                     event.target.style.cursor = "pointer";
                     event.target.style.outline = "1px solid yellow";
-                    const styles = [{name: "cursor", style: "pointer"}, {name: "outline", style: "1px solid red"}];
-                    if(socket != ""){
-                        socket.send(JSON.stringify({unique_id, styles, room_owner, event: "listen_change", room_id}));
+                    const styles = [{ name: "cursor", style: "pointer" }, { name: "outline", style: "1px solid red" }];
+                    if (socket != "") {
+                        socket.send(JSON.stringify({ unique_id, styles, room_owner, event: "listen_change", room_id }));
                     }
                     prevHoverId = unique_id;
                 }
-               
+
             }
         }
 
         const mouseOut = (event) => {
-            if (event.target && !hasAncestor(event.target, 'inspex-root-container', "jscolor-wrap", "inspex-minimized-window") && !isDragabble) {
+            const unique_id = event.target.getAttribute("data-unique-id");
+            if (event.target && !hasAncestor(event.target, 'inspex-root-container', "jscolor-wrap", "inspex-minimized-window") && !isDragabble && selectedId != unique_id && lockId != unique_id) {
                 event.target.style.cursor = "unset";
                 event.target.style.outline = 'none';
-                const unique_id = event.target.getAttribute("data-unique-id");
-                const styles = [{name: "cursor", style: "unset"}, {name: "outline", style: "none"}];
-                if(socket != ""){
-                    socket.send(JSON.stringify({unique_id, styles, room_owner, event: "listen_change", room_id}));
+                const styles = [{ name: "cursor", style: "unset" }, { name: "outline", style: "none" }];
+                if (socket != "") {
+                    socket.send(JSON.stringify({ unique_id, styles, room_owner, event: "listen_change", room_id }));
                 }
             }
         }
 
         const mouseClick = (event) => {
-
+            const unique_id = event.target.getAttribute("data-unique-id");
+            if (event.target?.id?.includes("inspex") || unique_id == lockId || Array.from(event.target.classList).some(className => className.startsWith('inspex')) || unique_id == null ) {
+                return;
+            }
+            console.log("event", unique_id)
+            if (unique_id != selectedId && selectedId != "") {
+                const prevSelected = document.querySelector(`[data-unique-id=${selectedId}]`);
+                if (prevSelected) {
+                    prevSelected.style.outline = "none";
+                    prevSelected.style.cursor = "unset";
+                    socket.send(JSON.stringify({event: "unlock_element", room_id, room_owner, unique_id: selectedId}))
+                }
+            }
             if (event.target && !hasAncestor(event.target, 'inspex-root-container', "jscolor-wrap", "inspex-minimized-window") && !isDragabble) {
                 _invokeStylePalet(event.target);
                 event.target.style.cursor = "pointer";
-                event.target.style.outline = '1px solid red';
+                event.target.style.outline = '1px solid green';
                 event.inspex_clicked = true;
+                selectedId = unique_id;
+                socket.send(JSON.stringify({event: "lock_element", room_id, room_owner, unique_id}))
             }
         }
 
@@ -772,7 +790,7 @@ const _init = () => {
                 document.removeEventListener("click", documentClickEvent)
                 const isExist = document.getElementById("inspex-color-palet-container");
                 const isExitMinimize = document.getElementById("inspex-minimized-window");
-                if(isExist) {
+                if (isExist) {
                     isExist.remove();
                     container[0].classList.remove("inspex-body")
                 }
@@ -793,23 +811,19 @@ const _init = () => {
     }
 }
 
-const changedStyles = {};
-
-
 const _init_socket = () => {
-     socket = new WebSocket("wss://7cb1-103-184-236-94.ngrok-free.app");
+    socket = new WebSocket("wss://7cb1-103-184-236-94.ngrok-free.app");
     socket.addEventListener('open', () => {
-        console.log('Connected to the WebSocket server');
         const url = window.location.href;
         urlParams = new URLSearchParams(url.split('?')[1]);
-        if(urlParams.get("inspex-join") != null){
+        if (urlParams.get("inspex-join") != null) {
             room_owner = "client";
             room_id = urlParams.get("inspex-join");
-            socket.send(JSON.stringify({event: "join_room", client_id: "CL001", room_id: urlParams.get("inspex-join")}))
-        }else{
+            socket.send(JSON.stringify({ event: "join_room", client_id: "CL001", room_id: urlParams.get("inspex-join") }))
+        } else {
             room_owner = "host";
             const bodyClone = document.body.cloneNode(true);
-          
+
             // Remove script tags from the cloned body
             const scripts = Array.from(bodyClone.querySelectorAll('script'));
             scripts.forEach(script => script.remove());
@@ -819,11 +833,11 @@ const _init_socket = () => {
 
             const iframe = Array.from(bodyClone.querySelectorAll('iframe'));
             iframe.forEach(iframe => iframe.remove());
-          
+
             // Get the HTML of the cloned body without scripts
             const bodyWithoutScripts = bodyClone.innerHTML;
-          
-            socket.send(JSON.stringify({ event: "create_room", client_id: "CL001", dom: bodyWithoutScripts}));
+
+            socket.send(JSON.stringify({ event: "create_room", client_id: "CL001", dom: bodyWithoutScripts }));
         }
 
     });
@@ -831,17 +845,17 @@ const _init_socket = () => {
 
     socket.addEventListener('message', (event) => {
         const data = JSON.parse(event.data);
-        if(data.event == "exchange_dom"){
+        console.log("GETTING EVENT", data.event)
+        if (data.event == "exchange_dom") {
             room_id = data.room_id;
             // applyUpdatedDom(data.processed_dom);
             const body = document.body;
             const elements = Array.from(body.childNodes);
             const tags = ["script", "link", "iframe", "style"];
             elements.forEach(element => {
-              if (element.nodeType === Node.ELEMENT_NODE && !tags.includes(element.tagName.toLowerCase())) {
-                body.removeChild(element);
-                console.log("element", element.tagName)
-              }
+                if (element.nodeType === Node.ELEMENT_NODE && !tags.includes(element.tagName.toLowerCase())) {
+                    body.removeChild(element);
+                }
 
             });
 
@@ -853,16 +867,79 @@ const _init_socket = () => {
                 body.insertBefore(tempDiv.firstChild, body.firstChild);
             }
 
-        }else if(data.event == "listen_change"){
-            console.log("EVENT", data);
+        } else if (data.event == "listen_change") {
             const targetDiv = document.querySelector([`[data-unique-id="${data.unique_id}"]`]);
-        
-            if(targetDiv){
-                for(let style of data.styles){
+            console.log("DATA GETTINg", data);
+            if (targetDiv) {
+                for (let style of data.styles) {
                     targetDiv.style.setProperty(style.name, style.style);
                 }
             }
-            
+        } else if (data.event == "lock_element") {
+            lockId = data.unique_id;
+            const lockElement = document.querySelector([`[data-unique-id="${data.unique_id}"]`]);
+            if (lockElement) {
+                lockElement.style.setProperty("outline", "1px solid orange");
+            }
+        } else if (data.event == "unlock_element") {
+            lockId = "";
+            console.log("GETTING DATA HERE");
+            const lockElement = document.querySelector([`[data-unique-id="${data.unique_id}"]`]);
+            if (lockElement) {
+                lockElement.style.setProperty("outline", "none");
+            }
+        }else if(data.event == "listen_innertext_change"){
+            const element = document.querySelector([`[data-unique-id="${data.unique_id}"]`]);
+            if(element){
+                element.innerText = data.text;
+            }
+        }else if(data.event == "listen_drag"){
+            const element = document.querySelector([`[data-unique-id="${data.unique_id}"]`]);
+            const blankdiv = document.createElement("div");
+            const computedStyle = window.getComputedStyle(element);
+            if(element && data.checked){
+                if (element.getAttribute("inspex-drag-container") || element.parentElement.getAttribute("inspex-drag-container")) {
+                    element.parentElement.setAttribute("style", "position: fixed; width:100%; height:100%; top:0; left:0;")
+                    element.style.setProperty("width", computedStyle["width"], "important");
+                    element.style.setProperty("left", element.getBoundingClientRect().left + "px");
+                    element.style.setProperty("top", element.getBoundingClientRect().top + "px")
+                    element.style.setProperty("z-index", "10", "important");
+                    element.style.setProperty("right", "auto", "important");
+                    element.style.setProperty("bottom", "auto", "important");
+                    element.style.setProperty("position", "fixed");
+                } else {
+                    const div = document.createElement("div");
+                    const uniqueId = data.lockheight_id;
+                    blankdiv.setAttribute("style", `width: ${element.getBoundingClientRect().width}px;`)
+                    blankdiv.id = uniqueId
+                    div.setAttribute("inspex-drag-container", "true");
+                    div.setAttribute("inspex-lock-height-id", uniqueId)
+                    div.setAttribute("style", "position: fixed; width:100%; height:100%; top:0; left:0;");
+                    isDragabble = true
+                    element.style.setProperty("width", computedStyle["width"], "important");
+                    element.style.setProperty("left", element.getBoundingClientRect().left + "px");
+                    element.style.setProperty("top", element.getBoundingClientRect().top + "px")
+                    element.style.setProperty("z-index", "10", "important");
+                    element.style.setProperty("right", "auto", "important");
+                    element.style.setProperty("bottom", "auto", "important");
+                    element.style.setProperty("position", "fixed");
+                    element.parentElement.appendChild(div);
+                    element.insertAdjacentElement("afterend", blankdiv);
+                    div.appendChild(element)
+    
+                }
+                element.style.setProperty("cursor", "move", "important");
+                element.style.setProperty("outline", "1px solid rgba(235, 86, 142, 1)", "important")
+    
+
+            }
+        }else if(data.event == "lock_height"){
+            const element = document.getElementById(data.unique_id);
+            if (element) {
+                for (let style of data.styles) {
+                    element.style.setProperty(style.name, style.style);
+                }
+            }
         }
     });
 }
@@ -871,7 +948,7 @@ function applyUpdatedDom(updatedDomString) {
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = updatedDomString;
     document.body.innerHTML = tempDiv.innerHTML;
-  }
+}
 
 
 const _invokeStylePalet = (event) => {
@@ -920,12 +997,11 @@ const _invokeStylePalet = (event) => {
             _generateHTML(event);
             _invokeColorPalet(event, 'hex')
             makeDraggable(dragContainer, container, "inspex-palet");
-            _closeEvent();
+            _closeEvent(event);
             _footerEvents(event);
 
             const cssButton = document.querySelector("#inspex-copy-css");
             cssButton.addEventListener("click", (e) => {
-                console.log("CSS CLICKED", changedStyles)
                 const bodyContainer = document.querySelector(".inspex-body-container");
                 bodyContainer.style.display = "none";
 
@@ -976,7 +1052,7 @@ const _invokeStylePalet = (event) => {
 const _generateHTML = (domSelector) => {
 
     const domSelectorStyles = getComputedStyle(domSelector);
-
+    const unique_id = domSelector?.getAttribute("data-unique-id");
     const mainContainer = document.getElementById('inspex-main-body-container');
 
     for (let section of _CSS_) {
@@ -1027,6 +1103,7 @@ const _generateHTML = (domSelector) => {
                 const new_property = e.target.value;
                 changedStyles[mainProperty.style] = e.target.value
                 domSelector.style.setProperty(mainProperty.style, new_property, "important");
+                socket.send(JSON.stringify({unique_id, room_owner,room_id, event: "listen_change", styles:[{name: mainProperty.style, style: new_property}]}))
                 _populateInputElements(supportingProperties[new_property], bodyContainer, domSelector);
             })
             mainSectionContainer.appendChild(flex1Col);
@@ -1062,6 +1139,8 @@ const _generateHTML = (domSelector) => {
 const _populateInputElements = (supportingProperties, bodyContainer, domSelector) => {
 
     const domSelectorStyles = getComputedStyle(domSelector);
+    const unique_id = domSelector?.getAttribute("data-unique-id");
+    console.log("DOk", domSelector, unique_id)
     bodyContainer.innerHTML = "";
     if (supportingProperties?.length > 0) {
         const flexRowPalet = createDivWithClasses('inspex-flex-row inspex-palet');
@@ -1081,6 +1160,7 @@ const _populateInputElements = (supportingProperties, bodyContainer, domSelector
                 inputElement.addEventListener(section.event, (e) => {
                     changedStyles[section.style] = e.target.value + " !important"
                     domSelector.style.setProperty(section.style, e.target.value, "important")
+                    socket.send(JSON.stringify({unique_id, room_owner,room_id, event: "listen_change", styles:[{name: section.style, style: e.target.value}]}))
                 })
                 divInput.appendChild(inputElement);
                 flex1Col.appendChild(divInput);
@@ -1096,6 +1176,7 @@ const _populateInputElements = (supportingProperties, bodyContainer, domSelector
                 inputElement.addEventListener(section.event, (e) => {
                     changedStyles[section.style] = e.target.value + " !important"
                     domSelector.style.setProperty(section.style, e.target.value, "important")
+                    socket.send(JSON.stringify({unique_id, room_owner, room_id, event: "listen_change", styles:[{name: section.style, style: e.target.value}]}, room_id))
                 })
                 divInput.appendChild(inputElement);
                 flex1Col.appendChild(divInput);
@@ -1117,11 +1198,13 @@ const _populateInputElements = (supportingProperties, bodyContainer, domSelector
                 inputDropdown.addEventListener("input", (e) => {
                     changedStyles[section.style] = `${inputElement.value}${e.target.value} !important`
                     domSelector.style.setProperty(section.style, `${inputElement.value}${e.target.value}`, "important");
+                    socket.send(JSON.stringify({unique_id, room_owner, room_id, event: "listen_change", styles:[{name: section.style, style: `${inputElement.value}${e.target.value}`}]}, room_id))
                 })
 
                 inputElement.addEventListener("input", (e) => {
                     changedStyles[section.style] = `${e.target.value}${inputDropdown.value} !important`
                     domSelector.style.setProperty(section.style, `${e.target.value}${inputDropdown.value}`, "important");
+                    socket.send(JSON.stringify({unique_id, room_owner,room_id, event: "listen_change", styles:[{name: section.style, style: `${e.target.value}${inputDropdown.value}`}]}, room_id))
                 })
 
                 dropdownDiv.appendChild(inputDropdown);
@@ -1144,6 +1227,7 @@ const _populateInputElements = (supportingProperties, bodyContainer, domSelector
 const _invokeColorPalet = (event, format) => {
     const domSelectorStyles = getComputedStyle(event);
     for (let elementName of _COLORPALETS) {
+        const unique_id =  event.getAttribute("data-unique-id");
         const inputColor = domSelectorStyles[elementName.style]
         const hexInputPalet = document.getElementById(elementName.hexSelector);
         const rgbaCopy = document.getElementById(elementName.rgbaCopy);
@@ -1153,8 +1237,10 @@ const _invokeColorPalet = (event, format) => {
         let jscolor = new JSColor(`#${elementName.selector}`, { preset: 'large', position: 'right', value: rgbaColor })
         jscolor.onChange = () => {
             hexInputPalet.value = jscolor.toHEXAString();
+           
         }
         jscolor.onInput = () => {
+            socket.send(JSON.stringify({unique_id, room_owner, event: "listen_change", room_id, styles:[{name: elementName.style, style: jscolor.toRGBAString()}]}))
             event.style.setProperty(elementName.style, jscolor.toRGBAString(), "important");
             changedStyles[elementName.style] = jscolor.toHEXAString();
         }
@@ -1180,12 +1266,14 @@ const _invokeColorPalet = (event, format) => {
 
 const _invokeTextInput = (event) => {
     const text = extractInnerText(event.innerText || event.innerHTML);
+    const unique_id =  event?.getAttribute("data-unique-id");
     if (text != "") {
         const textContainer = document.querySelector("#inspex-text-input-container");
         const textInput = document.querySelector("#inspex-text-type-input");
         textInput.value = text;
         textInput.addEventListener("input", (e) => {
             event.innerText = e.target.value;
+            socket.send(JSON.stringify({unique_id, room_owner, room_id, event: "listen_innertext_change", text: e.target.value}))
             if (isDragabble) {
                 event.style.setProperty("width", event.getBoundingClientRect().width + "px", "important")
             }
@@ -1194,20 +1282,26 @@ const _invokeTextInput = (event) => {
     }
 }
 
-const _closeEvent = () => {
+const _closeEvent = (domSelector) => {
     const closeButton = document.querySelector("#inspex-close");
+    const unique_id =  domSelector.getAttribute("data-unique-id");
     const mainContainer = document.querySelector("#inspex-color-palet-container");
     const minimized = document.querySelector("#inspex-minimized-window")
     const minmizedCSS = document.querySelector(".minimized-window");
     closeButton.addEventListener("click", (e) => {
         minimized.innerHTML = `<p class='inspex-vertical-branding'>Inpex.dev</p>`;
         mainContainer.style.transform = "scale(0)";
+        domSelector.style.setProperty("outline", "none");
+        socket.send(JSON.stringify({event: "unlock_element", room_id, room_owner, unique_id}))
         setTimeout(() => {
             minmizedCSS.style.setProperty("display", "block", "important")
         }, 300)
     })
     minimized.addEventListener("click", (e) => {
+
         minmizedCSS.style.setProperty("display", "none", "important")
+        domSelector.style.setProperty("outline", "1px solid green");
+        socket.send(JSON.stringify({event: "lock_element", room_id, room_owner, unique_id}))
         setTimeout(() => {
             mainContainer.style.transform = "scale(1)";
 
@@ -1217,11 +1311,13 @@ const _closeEvent = () => {
 }
 
 const _footerEvents = (event) => {
+    const unique_id =  event.getAttribute("data-unique-id");
     const computedStyle = window.getComputedStyle(event);
     const dragabbleCheckbox = document.querySelector("#inspex-dragabble-checkbox");
     const draggableLockHeightContainer = document.querySelector("#inspex-lock-height-container")
     const draggableLockHeightCheckbox = document.querySelector("#inspex-dragabble-lock-height-checkbox");
     let isLockHeight = false;
+    const uniqueId = `inspex-lock-height-${Date.now()}`
     dragabbleCheckbox.addEventListener("change", (e) => {
         draggableLockHeightContainer.style.setProperty("display", "block");
         const blankdiv = document.createElement("div");
@@ -1243,14 +1339,16 @@ const _footerEvents = (event) => {
                 }
                 draggableLockHeightCheckbox.addEventListener("change", (e) => {
                     if (e.target.checked) {
+                        socket.send(JSON.stringify({room_id, room_owner,  unique_id: uniqueId, event: "lock_height", styles:[{name: "height", style: event.getBoundingClientRect().height + "px"}]}))
                         lockHideIdContaner.style.setProperty("height", event.getBoundingClientRect().height + "px", "important")
                     } else {
+                        socket.send(JSON.stringify({room_id, room_owner,  unique_id: uniqueId, event: "lock_height", styles:[{name: "height", style: "auto"}]}))
                         lockHideIdContaner.style.setProperty("height", "auto", "important")
                     }
                 })
             } else {
                 const div = document.createElement("div");
-                const uniqueId = `inspex-lock-height-${Date.now()}`
+               
                 blankdiv.setAttribute("style", `width: ${event.getBoundingClientRect().width}px;`)
                 blankdiv.id = uniqueId
                 draggableLockHeightCheckbox.value = uniqueId;
@@ -1270,8 +1368,10 @@ const _footerEvents = (event) => {
                 div.appendChild(event)
                 draggableLockHeightCheckbox.addEventListener("change", (e) => {
                     if (e.target.checked) {
+                        socket.send(JSON.stringify({room_id, room_owner, unique_id: uniqueId, event: "lock_height", styles:[{name: "height", style: event.getBoundingClientRect().height + "px"}]}))
                         blankdiv.style.setProperty("height", event.getBoundingClientRect().height + "px", "important");
                     } else {
+                        socket.send(JSON.stringify({room_id, room_owner,  unique_id: uniqueId, event: "lock_height", styles:[{name: "height", style: "auto"}]}))
                         blankdiv.style.setProperty("height", "auto", "important");
                     }
                 })
@@ -1283,6 +1383,9 @@ const _footerEvents = (event) => {
 
 
             makeDraggable(event, event, "container");
+              socket.send(JSON.stringify({event: "listen_drag", room_id, room_owner, unique_id, checked: true, lockheight_id: uniqueId}))
+
+
         } else {
             isDragabble = false;
             event.style.setProperty("cursor", "unset", "important");
@@ -1451,6 +1554,7 @@ const createInput = (id, type) => {
 const makeDraggable = (element, mainContainer, action) => {
     let isDragging = false;
     let offsetX, offsetY;
+    const unique_id =  element.getAttribute("data-unique-id");
 
     // Function to handle mouse down event
     function handleMouseDown(event) {
@@ -1469,6 +1573,9 @@ const makeDraggable = (element, mainContainer, action) => {
             let y = event.clientY - offsetY;
             mainContainer.style.left = x + 'px';
             mainContainer.style.top = y + 'px';
+            if(action == "container"){
+                socket.send(JSON.stringify({event: "listen_change", room_id,unique_id, room_owner, styles: [{name: "left", style: x+"px"}, {name: "top", style: y+"px"}] }))
+            }
             if (action == "inspex-palet") {
                 localStorage.setItem("inspex-top", mainContainer.style.top)
                 localStorage.setItem("inspex-left", mainContainer.style.left)
