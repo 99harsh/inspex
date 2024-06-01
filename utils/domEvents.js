@@ -87,6 +87,8 @@ const _generateHTML = (domSelector) => {
 const _populateInputElements = (supportingProperties, bodyContainer, domSelector) => {
 
     const domSelectorStyles = getComputedStyle(domSelector);
+    const unique_id = domSelector?.getAttribute("data-unique-id");
+    console.log("DOk", domSelector, unique_id)
     bodyContainer.innerHTML = "";
     if (supportingProperties?.length > 0) {
         const flexRowPalet = createDivWithClasses('inspex-flex-row inspex-palet');
@@ -106,6 +108,7 @@ const _populateInputElements = (supportingProperties, bodyContainer, domSelector
                 inputElement.addEventListener(section.event, (e) => {
                     changedStyles[section.style] = e.target.value + " !important"
                     domSelector.style.setProperty(section.style, e.target.value, "important")
+                    socket.send(JSON.stringify({unique_id, room_owner,room_id, event: "listen_change", styles:[{name: section.style, style: e.target.value}]}))
                 })
                 divInput.appendChild(inputElement);
                 flex1Col.appendChild(divInput);
@@ -121,6 +124,7 @@ const _populateInputElements = (supportingProperties, bodyContainer, domSelector
                 inputElement.addEventListener(section.event, (e) => {
                     changedStyles[section.style] = e.target.value + " !important"
                     domSelector.style.setProperty(section.style, e.target.value, "important")
+                    socket.send(JSON.stringify({unique_id, room_owner, room_id, event: "listen_change", styles:[{name: section.style, style: e.target.value}]}, room_id))
                 })
                 divInput.appendChild(inputElement);
                 flex1Col.appendChild(divInput);
@@ -142,11 +146,13 @@ const _populateInputElements = (supportingProperties, bodyContainer, domSelector
                 inputDropdown.addEventListener("input", (e) => {
                     changedStyles[section.style] = `${inputElement.value}${e.target.value} !important`
                     domSelector.style.setProperty(section.style, `${inputElement.value}${e.target.value}`, "important");
+                    socket.send(JSON.stringify({unique_id, room_owner, room_id, event: "listen_change", styles:[{name: section.style, style: `${inputElement.value}${e.target.value}`}]}, room_id))
                 })
 
                 inputElement.addEventListener("input", (e) => {
                     changedStyles[section.style] = `${e.target.value}${inputDropdown.value} !important`
                     domSelector.style.setProperty(section.style, `${e.target.value}${inputDropdown.value}`, "important");
+                    socket.send(JSON.stringify({unique_id, room_owner,room_id, event: "listen_change", styles:[{name: section.style, style: `${e.target.value}${inputDropdown.value}`}]}, room_id))
                 })
 
                 dropdownDiv.appendChild(inputDropdown);
@@ -168,12 +174,14 @@ const _populateInputElements = (supportingProperties, bodyContainer, domSelector
 
 const _invokeTextInput = (event) => {
     const text = extractInnerText(event.innerText || event.innerHTML);
+    const unique_id =  event?.getAttribute("data-unique-id");
     if (text != "") {
         const textContainer = document.querySelector("#inspex-text-input-container");
         const textInput = document.querySelector("#inspex-text-type-input");
         textInput.value = text;
         textInput.addEventListener("input", (e) => {
             event.innerText = e.target.value;
+            socket.send(JSON.stringify({unique_id, room_owner, room_id, event: "listen_innertext_change", text: e.target.value}))
             if (isDragabble) {
                 event.style.setProperty("width", event.getBoundingClientRect().width + "px", "important")
             }
