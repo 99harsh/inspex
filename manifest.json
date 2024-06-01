@@ -17,8 +17,11 @@
     "content_scripts": [
         {
             "js": [
-                "jscolor.min.js",
-                "helper.js",
+                "lib/jscolor.min.js",
+                "utils/constant.js",
+                "utils/helper.js",
+                "utils/domEvents.js",
+                "utils/inspexPopupEvent.js",
                 "contentScript.js"
             ],
             "matches": [
