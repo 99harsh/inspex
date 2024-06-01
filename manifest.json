@@ -17,8 +17,9 @@
     "content_scripts": [
         {
             "js": [
-                "contentScript.js",
-                "jscolor.min.js"
+                "jscolor.min.js",
+                "helper.js",
+                "contentScript.js"
             ],
             "matches": [
                 "*://*/*"
