@@ -108,7 +108,9 @@ const _populateInputElements = (supportingProperties, bodyContainer, domSelector
                 inputElement.addEventListener(section.event, (e) => {
                     changedStyles[section.style] = e.target.value + " !important"
                     domSelector.style.setProperty(section.style, e.target.value, "important")
-                    socket.send(JSON.stringify({unique_id, room_owner,room_id, event: "listen_change", styles:[{name: section.style, style: e.target.value}]}))
+                    if(isRoomCreated){
+                        socket.send(JSON.stringify({unique_id, room_owner,room_id, event: "listen_change", styles:[{name: section.style, style: e.target.value}]}))
+                    }
                 })
                 divInput.appendChild(inputElement);
                 flex1Col.appendChild(divInput);
@@ -124,7 +126,9 @@ const _populateInputElements = (supportingProperties, bodyContainer, domSelector
                 inputElement.addEventListener(section.event, (e) => {
                     changedStyles[section.style] = e.target.value + " !important"
                     domSelector.style.setProperty(section.style, e.target.value, "important")
-                    socket.send(JSON.stringify({unique_id, room_owner, room_id, event: "listen_change", styles:[{name: section.style, style: e.target.value}]}, room_id))
+                    if(isRoomCreated){
+                        socket.send(JSON.stringify({unique_id, room_owner, room_id, event: "listen_change", styles:[{name: section.style, style: e.target.value}]}, room_id))
+                    }
                 })
                 divInput.appendChild(inputElement);
                 flex1Col.appendChild(divInput);
@@ -146,13 +150,17 @@ const _populateInputElements = (supportingProperties, bodyContainer, domSelector
                 inputDropdown.addEventListener("input", (e) => {
                     changedStyles[section.style] = `${inputElement.value}${e.target.value} !important`
                     domSelector.style.setProperty(section.style, `${inputElement.value}${e.target.value}`, "important");
-                    socket.send(JSON.stringify({unique_id, room_owner, room_id, event: "listen_change", styles:[{name: section.style, style: `${inputElement.value}${e.target.value}`}]}, room_id))
+                    if(isRoomCreated){
+                        socket.send(JSON.stringify({unique_id, room_owner, room_id, event: "listen_change", styles:[{name: section.style, style: `${inputElement.value}${e.target.value}`}]}, room_id))
+                    }
                 })
 
                 inputElement.addEventListener("input", (e) => {
                     changedStyles[section.style] = `${e.target.value}${inputDropdown.value} !important`
                     domSelector.style.setProperty(section.style, `${e.target.value}${inputDropdown.value}`, "important");
-                    socket.send(JSON.stringify({unique_id, room_owner,room_id, event: "listen_change", styles:[{name: section.style, style: `${e.target.value}${inputDropdown.value}`}]}, room_id))
+                    if(isRoomCreated){
+                        socket.send(JSON.stringify({unique_id, room_owner,room_id, event: "listen_change", styles:[{name: section.style, style: `${e.target.value}${inputDropdown.value}`}]}, room_id))
+                    }
                 })
 
                 dropdownDiv.appendChild(inputDropdown);
@@ -181,7 +189,9 @@ const _invokeTextInput = (event) => {
         textInput.value = text;
         textInput.addEventListener("input", (e) => {
             event.innerText = e.target.value;
-            socket.send(JSON.stringify({unique_id, room_owner, room_id, event: "listen_innertext_change", text: e.target.value}))
+            if(isRoomCreated){
+                socket.send(JSON.stringify({unique_id, room_owner, room_id, event: "listen_innertext_change", text: e.target.value}))
+            }
             if (isDragabble) {
                 event.style.setProperty("width", event.getBoundingClientRect().width + "px", "important")
             }

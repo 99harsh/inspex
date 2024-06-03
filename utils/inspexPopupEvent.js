@@ -46,6 +46,7 @@ const _invokeStylePalet = (event) => {
             makeDraggable(dragContainer, container, "inspex-palet");
             _closeEvent(event);
             _footerEvents(event);
+            _init_socket();
 
             const cssButton = document.querySelector("#inspex-copy-css");
             cssButton.addEventListener("click", (e) => {
@@ -89,8 +90,8 @@ const _invokeStylePalet = (event) => {
 
 
     // Append the container to the document body
-    document.body.prepend(minimize);
-    document.body.prepend(container);
+    document.body.insertAdjacentElement("afterend", minimize);
+    document.body.insertAdjacentElement("afterend", container);
 
 
 }
@@ -209,7 +210,9 @@ const _invokeColorPalet = (event, format) => {
            
         }
         jscolor.onInput = () => {
-            socket.send(JSON.stringify({unique_id, room_owner, event: "listen_change", room_id, styles:[{name: elementName.style, style: jscolor.toRGBAString()}]}))
+            if(isRoomCreated){
+                socket.send(JSON.stringify({unique_id, room_owner, event: "listen_change", room_id, styles:[{name: elementName.style, style: jscolor.toRGBAString()}]}))
+            }
             event.style.setProperty(elementName.style, jscolor.toRGBAString(), "important");
             changedStyles[elementName.style] = jscolor.toHEXAString();
         }
@@ -244,7 +247,9 @@ const _closeEvent = (domSelector) => {
         minimized.innerHTML = `<p class='inspex-vertical-branding'>Inpex.dev</p>`;
         mainContainer.style.transform = "scale(0)";
         domSelector.style.setProperty("outline", "none");
-        socket.send(JSON.stringify({event: "unlock_element", room_id, room_owner, unique_id}))
+        if(isRoomCreated){
+            socket.send(JSON.stringify({event: "unlock_element", room_id, room_owner, unique_id}))
+        }
         setTimeout(() => {
             minmizedCSS.style.setProperty("display", "block", "important")
         }, 300)
@@ -253,7 +258,9 @@ const _closeEvent = (domSelector) => {
 
         minmizedCSS.style.setProperty("display", "none", "important")
         domSelector.style.setProperty("outline", "1px solid green");
-        socket.send(JSON.stringify({event: "lock_element", room_id, room_owner, unique_id}))
+        if(isRoomCreated){
+            socket.send(JSON.stringify({event: "lock_element", room_id, room_owner, unique_id}))
+        }
         setTimeout(() => {
             mainContainer.style.transform = "scale(1)";
 
@@ -280,7 +287,7 @@ const _footerEvents = (event) => {
                 event.style.setProperty("width", computedStyle["width"], "important");
                 event.style.setProperty("left", event.getBoundingClientRect().left + "px");
                 event.style.setProperty("top", event.getBoundingClientRect().top + "px")
-                event.style.setProperty("z-index", "10", "important");
+                event.style.setProperty("z-index", "999", "important");
                 event.style.setProperty("right", "auto", "important");
                 event.style.setProperty("bottom", "auto", "important");
                 event.style.setProperty("position", "fixed");
@@ -291,10 +298,14 @@ const _footerEvents = (event) => {
                 }
                 draggableLockHeightCheckbox.addEventListener("change", (e) => {
                     if (e.target.checked) {
-                        socket.send(JSON.stringify({room_id, room_owner,  unique_id: uniqueId, event: "lock_height", styles:[{name: "height", style: event.getBoundingClientRect().height + "px"}]}))
+                        if(isRoomCreated){
+                            socket.send(JSON.stringify({room_id, room_owner,  unique_id: uniqueId, event: "lock_height", styles:[{name: "height", style: event.getBoundingClientRect().height + "px"}]}))
+                        }
                         lockHideIdContaner.style.setProperty("height", event.getBoundingClientRect().height + "px", "important")
                     } else {
-                        socket.send(JSON.stringify({room_id, room_owner,  unique_id: uniqueId, event: "lock_height", styles:[{name: "height", style: "auto"}]}))
+                        if(isRoomCreated){
+                            socket.send(JSON.stringify({room_id, room_owner,  unique_id: uniqueId, event: "lock_height", styles:[{name: "height", style: "auto"}]}))
+                        }
                         lockHideIdContaner.style.setProperty("height", "auto", "important")
                     }
                 })
@@ -306,12 +317,11 @@ const _footerEvents = (event) => {
                 draggableLockHeightCheckbox.value = uniqueId;
                 div.setAttribute("inspex-drag-container", "true");
                 div.setAttribute("inspex-lock-height-id", uniqueId)
-                div.setAttribute("style", "position: fixed; width:100%; height:100%; top:0; left:0;");
+                div.setAttribute("style", "position: fixed; width:100%; height:100%; top:0; left:0; z-index: 999; overflow: hidden");
                 isDragabble = true
                 event.style.setProperty("width", computedStyle["width"], "important");
                 event.style.setProperty("left", event.getBoundingClientRect().left + "px");
                 event.style.setProperty("top", event.getBoundingClientRect().top + "px")
-                event.style.setProperty("z-index", "10", "important");
                 event.style.setProperty("right", "auto", "important");
                 event.style.setProperty("bottom", "auto", "important");
                 event.style.setProperty("position", "fixed");
@@ -320,10 +330,14 @@ const _footerEvents = (event) => {
                 div.appendChild(event)
                 draggableLockHeightCheckbox.addEventListener("change", (e) => {
                     if (e.target.checked) {
-                        socket.send(JSON.stringify({room_id, room_owner, unique_id: uniqueId, event: "lock_height", styles:[{name: "height", style: event.getBoundingClientRect().height + "px"}]}))
+                        if(isRoomCreated){
+                            socket.send(JSON.stringify({room_id, room_owner, unique_id: uniqueId, event: "lock_height", styles:[{name: "height", style: event.getBoundingClientRect().height + "px"}]}))
+                        }
                         blankdiv.style.setProperty("height", event.getBoundingClientRect().height + "px", "important");
                     } else {
-                        socket.send(JSON.stringify({room_id, room_owner,  unique_id: uniqueId, event: "lock_height", styles:[{name: "height", style: "auto"}]}))
+                        if(isRoomCreated){
+                            socket.send(JSON.stringify({room_id, room_owner,  unique_id: uniqueId, event: "lock_height", styles:[{name: "height", style: "auto"}]}))
+                        }
                         blankdiv.style.setProperty("height", "auto", "important");
                     }
                 })
@@ -333,9 +347,10 @@ const _footerEvents = (event) => {
             event.style.setProperty("cursor", "move", "important");
             event.style.setProperty("outline", "1px solid rgba(235, 86, 142, 1)", "important")
 
-
             makeDraggable(event, event, "container");
-              socket.send(JSON.stringify({event: "listen_drag", room_id, room_owner, unique_id, checked: true, lockheight_id: uniqueId}))
+            if(isRoomCreated){
+                socket.send(JSON.stringify({event: "listen_drag", room_id, room_owner, unique_id, checked: true, lockheight_id: uniqueId}))
+            }
 
 
         } else {

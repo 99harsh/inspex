@@ -172,7 +172,7 @@ const makeDraggable = (element, mainContainer, action) => {
             let y = event.clientY - offsetY;
             mainContainer.style.left = x + 'px';
             mainContainer.style.top = y + 'px';
-            if(action == "container"){
+            if(action == "container" && isRoomCreated){
                 socket.send(JSON.stringify({event: "listen_change", room_id,unique_id, room_owner, styles: [{name: "left", style: x+"px"}, {name: "top", style: y+"px"}] }))
             }
             if (action == "inspex-palet") {
