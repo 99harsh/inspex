@@ -210,8 +210,8 @@ const _invokeColorPalet = (event, format) => {
            
         }
         jscolor.onInput = () => {
-            if(isRoomCreated){
-                socket.send(JSON.stringify({unique_id, room_owner, event: "listen_change", room_id, styles:[{name: elementName.style, style: jscolor.toRGBAString()}]}))
+            if(isSocketConnected){
+                socket.send(JSON.stringify({unique_id, room_owner, client_id, event: "listen_change", room_id, styles:[{name: elementName.style, style: jscolor.toRGBAString()}]}))
             }
             event.style.setProperty(elementName.style, jscolor.toRGBAString(), "important");
             changedStyles[elementName.style] = jscolor.toHEXAString();
@@ -247,8 +247,8 @@ const _closeEvent = (domSelector) => {
         minimized.innerHTML = `<p class='inspex-vertical-branding'>Inpex.dev</p>`;
         mainContainer.style.transform = "scale(0)";
         domSelector.style.setProperty("outline", "none");
-        if(isRoomCreated){
-            socket.send(JSON.stringify({event: "unlock_element", room_id, room_owner, unique_id}))
+        if(isSocketConnected){
+            socket.send(JSON.stringify({event: "unlock_element", room_id, client_id, room_owner, unique_id}))
         }
         setTimeout(() => {
             minmizedCSS.style.setProperty("display", "block", "important")
@@ -258,8 +258,8 @@ const _closeEvent = (domSelector) => {
 
         minmizedCSS.style.setProperty("display", "none", "important")
         domSelector.style.setProperty("outline", "1px solid green");
-        if(isRoomCreated){
-            socket.send(JSON.stringify({event: "lock_element", room_id, room_owner, unique_id}))
+        if(isSocketConnected){
+            socket.send(JSON.stringify({event: "lock_element", room_id, client_id, room_owner, unique_id}))
         }
         setTimeout(() => {
             mainContainer.style.transform = "scale(1)";
@@ -298,13 +298,13 @@ const _footerEvents = (event) => {
                 }
                 draggableLockHeightCheckbox.addEventListener("change", (e) => {
                     if (e.target.checked) {
-                        if(isRoomCreated){
-                            socket.send(JSON.stringify({room_id, room_owner,  unique_id: uniqueId, event: "lock_height", styles:[{name: "height", style: event.getBoundingClientRect().height + "px"}]}))
+                        if(isSocketConnected){
+                            socket.send(JSON.stringify({room_id, room_owner, client_id,  unique_id: uniqueId, event: "lock_height", styles:[{name: "height", style: event.getBoundingClientRect().height + "px"}]}))
                         }
                         lockHideIdContaner.style.setProperty("height", event.getBoundingClientRect().height + "px", "important")
                     } else {
-                        if(isRoomCreated){
-                            socket.send(JSON.stringify({room_id, room_owner,  unique_id: uniqueId, event: "lock_height", styles:[{name: "height", style: "auto"}]}))
+                        if(isSocketConnected){
+                            socket.send(JSON.stringify({room_id, room_owner, client_id,  unique_id: uniqueId, event: "lock_height", styles:[{name: "height", style: "auto"}]}))
                         }
                         lockHideIdContaner.style.setProperty("height", "auto", "important")
                     }
@@ -330,13 +330,13 @@ const _footerEvents = (event) => {
                 div.appendChild(event)
                 draggableLockHeightCheckbox.addEventListener("change", (e) => {
                     if (e.target.checked) {
-                        if(isRoomCreated){
-                            socket.send(JSON.stringify({room_id, room_owner, unique_id: uniqueId, event: "lock_height", styles:[{name: "height", style: event.getBoundingClientRect().height + "px"}]}))
+                        if(isSocketConnected){
+                            socket.send(JSON.stringify({room_id, client_id, room_owner, unique_id: uniqueId, event: "lock_height", styles:[{name: "height", style: event.getBoundingClientRect().height + "px"}]}))
                         }
                         blankdiv.style.setProperty("height", event.getBoundingClientRect().height + "px", "important");
                     } else {
-                        if(isRoomCreated){
-                            socket.send(JSON.stringify({room_id, room_owner,  unique_id: uniqueId, event: "lock_height", styles:[{name: "height", style: "auto"}]}))
+                        if(isSocketConnected){
+                            socket.send(JSON.stringify({room_id, client_id, room_owner,  unique_id: uniqueId, event: "lock_height", styles:[{name: "height", style: "auto"}]}))
                         }
                         blankdiv.style.setProperty("height", "auto", "important");
                     }
@@ -348,8 +348,8 @@ const _footerEvents = (event) => {
             event.style.setProperty("outline", "1px solid rgba(235, 86, 142, 1)", "important")
 
             makeDraggable(event, event, "container");
-            if(isRoomCreated){
-                socket.send(JSON.stringify({event: "listen_drag", room_id, room_owner, unique_id, checked: true, lockheight_id: uniqueId}))
+            if(isSocketConnected){
+                socket.send(JSON.stringify({event: "listen_drag", room_id, client_id, room_owner, unique_id, checked: true, lockheight_id: uniqueId}))
             }
 
 
@@ -365,4 +365,22 @@ const _footerEvents = (event) => {
     event.addEventListener("mousedown", (e) => {
         e.preventDefault()
     })
+
+    const createRoomBtn = document.querySelector("#inspex-create-room");
+    const loadingText = document.querySelector("#inpsex-room-code-loading");
+    const joinRoomBtn = document.querySelector("#inspex-join-room");
+
+
+    if(room_id != ""){
+        createRoomBtn.style.setProperty("display", "none");
+        joinRoomBtn.style.setProperty("display", "none");
+        if(room_owner == "host"){
+            loadingText.innerHTML = "Room Id:- "+room_id;
+            loadingText.style.setProperty("display", "block");
+        }else{
+            loadingText.innerHTML = "Connected";
+            loadingText.style.setProperty("display", "block");
+            loadingText.style.setProperty("color", "#4BB543");
+        }
+    }
 }

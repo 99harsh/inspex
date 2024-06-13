@@ -686,3 +686,18 @@ const _CSS_ = [
 ]
 
 const changedStyles = {};
+
+let _HTMLTEXTELEMENTS = [];
+let _UNITS = [];
+let _COLORPALETS = []
+let isDragabble = false;
+let drabbleFullScreen = "";
+let socket = {};
+let lockId = [];
+let prevLockId = "";
+let selectedId = "";
+let prevHoverId = ""
+let room_id = "";
+let client_id = "";
+let room_owner = "host";
+let isSocketConnected = false;

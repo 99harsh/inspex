@@ -373,10 +373,34 @@
             flex-grow: 1;
         }
 
-        .inspex-room-code{
+        .inspex-room-code {
             color: #fff;
             font-size: 0.875rem !important;
             display: none;
+        }
+
+        .inspex-join-room-wrapper {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 90%;
+            top: 2.5rem;
+            background-color: white;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding-top: -2.125rem !important;
+        }
+
+        .inspex-join-input-container {
+            padding-top: .5rem !important;
+        }
+        .inspex-join-heading{
+            color: #000;
+        }
+        .inspex-join-button-container{
+            padding-top: .5rem !important;
         }
     </style>
 </head>
@@ -486,6 +510,17 @@
                 <div>
                     <button class="inspex-copy-css-btn inspex-back-btn" id="inspex-css-back-btn">Back</button>
                 </div>
+            </div>
+        </div>
+        <div class="inspex-join-room-wrapper">
+            <div class="inspex-join-heading-wrapper">
+                <span class="inspex-join-heading">Join Room</span>
+            </div>
+            <div class="inspex-join-input-container">
+                <input type="text" class="inspex-text-input" id="inspex-join-room-input" />
+            </div>
+            <div class="inspex-join-button-container">
+                <button class="inspex-footer-button" id="inspex-join-room-btn">Join Code</button>
             </div>
         </div>
 
