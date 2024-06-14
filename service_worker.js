@@ -1,13 +1,12 @@
 chrome.runtime.onInstalled.addListener(() => {
-
-    console.log("ON INSTALasLAED")
     chrome.action.setBadgeText({
         text: "OFF",
     });
     chrome.storage.sync.set({
         _HTMLTEXTELEMENTS: ["h1", "h2", "h3", "h4", "h5", "span", "a", "button", "p", "td", "input", "select"],
         _UNITS: ["px", "%", "rem", "em", "vh", "vw", "vmin", "vmax", "ch", "ex", "cm", "mm", "in", "pt", "pc"],
-        _COLORPALETS: [{
+        _COLORPALETS: [
+            {
             selector: "inspex-font-color-palet",
             hexSelector: "inspex-font-hex-palet",
             rgbaCopy: "inspex-font-rgba-copy",

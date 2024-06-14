@@ -42,10 +42,10 @@ const _invokeStylePalet = (event) => {
 
             // Make the container draggable
             _generateHTML(event);
-            _invokeColorPalet(event, 'hex')
             makeDraggable(dragContainer, container, "inspex-palet");
             _closeEvent(event);
             _footerEvents(event);
+            _invokeColorPalet(event, 'hex')
             _init_socket();
 
             const cssButton = document.querySelector("#inspex-copy-css");
@@ -203,12 +203,18 @@ const _invokeColorPalet = (event, format) => {
         const rgbaCopy = document.getElementById(elementName.rgbaCopy);
         const hexCopy = document.getElementById(elementName.hexCopy);
         const rgbaColor = _rgbToRgba(inputColor);
-        hexInputPalet.value = _rgbaToHex(rgbaColor)
+        hexInputPalet.value = _rgbaToHex(rgbaColor);
         let jscolor = new JSColor(`#${elementName.selector}`, { preset: 'large', position: 'right', value: rgbaColor })
+        const input = document.getElementById(elementName.selector);
+
+        input.addEventListener("click", (e)=>{
+            jscolor.show();
+        })
+        
         jscolor.onChange = () => {
             hexInputPalet.value = jscolor.toHEXAString();
-           
         }
+
         jscolor.onInput = () => {
             if(isSocketConnected){
                 socket.send(JSON.stringify({unique_id, room_owner, client_id, event: "listen_change", room_id, styles:[{name: elementName.style, style: jscolor.toRGBAString()}]}))

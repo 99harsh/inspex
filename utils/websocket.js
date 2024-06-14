@@ -7,7 +7,7 @@ const _init_socket = () => {
         joinRoom.style.setProperty("display", "none");
         roomCode.innerHTML = "Please Wait...";
         roomCode.style.setProperty("display", "block");
-        socket = new WebSocket("https://5fbe-43-249-55-188.ngrok-free.app");
+        socket = new WebSocket("https://7d16-43-249-55-188.ngrok-free.app");
         socket.addEventListener('open', () => {
 
             room_owner = "host";
@@ -48,7 +48,7 @@ const _init_socket = () => {
         joinRoomBtn.addEventListener("click", (e) => {
             if (roomInputCode.length == 6) {
                 room_owner = "client";
-                socket = new WebSocket("https://5fbe-43-249-55-188.ngrok-free.app");
+                socket = new WebSocket("https://7d16-43-249-55-188.ngrok-free.app");
                 socket.addEventListener('open', () => {
                     _listen_socket_events(socket)
                     socket.send(JSON.stringify({ event: "join_room", room_id: roomInputCode }))
