@@ -26,6 +26,10 @@ const _init = () => {
                 }
             }
 
+            if(unique_id && lockId.includes(unique_id)){
+                return;
+            }
+
             if (event.target && !hasAncestor(event.target, 'inspex-root-container', "jscolor-wrap", "inspex-minimized-window") && !isDragabble) {
                 event.target.style.cursor = "pointer";
                 event.target.style.outline = "1px solid yellow";
@@ -46,6 +50,10 @@ const _init = () => {
                     return;
                 }
             }
+            console.log(lockId, unique_id)
+            if(unique_id && lockId.includes(unique_id)){
+                return;
+            }
 
             if (event.target && !hasAncestor(event.target, 'inspex-root-container', "jscolor-wrap", "inspex-minimized-window") && !isDragabble) {
                 event.target.style.cursor = "unset";
@@ -59,20 +67,11 @@ const _init = () => {
 
         const mouseClick = (event) => {
             let unique_id = event.target.getAttribute("data-unique-id");
-            // if (unique_id != selectedId && selectedId != "" && isSocketConnected) {
-            //     const prevSelected = document.querySelector(`[data-unique-id=${selectedId}]`);
-            //     if (prevSelected) {
-            //         prevSelected.style.outline = "none";
-            //         prevSelected.style.cursor = "unset";
-            //         if (isSocketConnected) {
-            //             socket.send(JSON.stringify({ event: "unlock_element", room_id, room_owner, unique_id: selectedId, client_id }))
-            //         }
-            //     }
-            // }
-
+            if(unique_id && lockId.includes(unique_id)){
+                return;
+            }
             //when socket is not connected
             if (unique_id == null && !event.target.getAttribute("inspex-local-lock")) {
-                //  const targetDiv = document.querySelector([`[data-unique-id="${data.unique_id}"]`]);
                 const prevLocalLock = document?.querySelector([`[inspex-local-lock="true"]`])
                 if (prevLocalLock) {
                     console.log("Prev Selector", prevLocalLock.style);
@@ -90,7 +89,9 @@ const _init = () => {
                     return;
                 }
                 else{
-                    const prevLock = document?.querySelector([`[data-unique-id="${prevLockId}]"`]);
+                    //document?.querySelector([`[data-unique-id="unique-le5mfhdbu"]`])
+                    const prevLock = document?.querySelector([`[data-unique-id="${prevLockId}"]`]);
+                    console.log("PREV LOCK", prevLock, prevLockId);
                     if(prevLock){
                         prevLock.style.setProperty("cursor", "unset");
                         prevLock.style.setProperty("outline", "none");
@@ -100,6 +101,8 @@ const _init = () => {
                             socket.send(JSON.stringify({ event: "unlock_element", room_id, room_owner, unique_id: prevLockId, client_id }))
                         }
                     }
+                    lockId.push(unique_id);
+                    prevLockId = unique_id;
                     event.target.style.cursor = "pointer";
                     event.target.style.outline = '1px solid green';
                 }

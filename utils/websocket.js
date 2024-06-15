@@ -128,14 +128,20 @@ const _listen_socket_events = (socket) => {
                 }
             }
         } else if (data.event == "lock_element") {
+            lockId.push(data.unique_id);
             const lockElement = document.querySelector([`[data-unique-id="${data.unique_id}"]`]);
             if (lockElement) {
                 lockElement.style.setProperty("outline", "1px solid orange");
             }
         } else if (data.event == "unlock_element") {
+          
             const lockElement = document.querySelector([`[data-unique-id="${data.unique_id}"]`]);
             if (lockElement) {
                 lockElement.style.setProperty("outline", "none");
+            }
+            const index = lockId.findIndex((element) => element == data.unique_id);
+            if(index != -1){
+                lockId.splice(index, 1);
             }
         } else if (data.event == "listen_innertext_change") {
             const element = document.querySelector([`[data-unique-id="${data.unique_id}"]`]);
