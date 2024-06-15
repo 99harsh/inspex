@@ -30,6 +30,10 @@ const _init_socket = () => {
             socket.send(JSON.stringify({ event: "create_room", dom: bodyWithoutScripts }));
         });
 
+        socket.addEventListener("error", (e)=>{
+            roomCode.innerText = "Something went wrong!";
+        })
+
 
 
     })
@@ -38,6 +42,12 @@ const _init_socket = () => {
         const joinRoomContainer = document.querySelector(".inspex-join-room-wrapper");
         const joinRoomInput = document.querySelector("#inspex-join-room-input");
         const joinRoomBtn = document.querySelector("#inspex-join-room-btn");
+        const backButton = document.querySelector("#inspex-back-button");
+        const joinLoadingText = document.querySelector("#inspex-join-loading");
+        backButton.addEventListener("click", (e)=>{
+            
+            joinRoomContainer.style.setProperty("display","none", "important")
+        })
         let roomInputCode = "";
 
         joinRoomContainer.style.setProperty("display", "flex", "important");
@@ -47,12 +57,20 @@ const _init_socket = () => {
 
         joinRoomBtn.addEventListener("click", (e) => {
             if (roomInputCode.length == 6) {
+                joinLoadingText.style.setProperty("color", "black");
+                joinLoadingText.style.setProperty("display", "block", "important");
+                joinLoadingText.innerText = "Please wait...";
                 room_owner = "client";
                 socket = new WebSocket("https://7d16-43-249-55-188.ngrok-free.app");
                 socket.addEventListener('open', () => {
                     _listen_socket_events(socket)
                     socket.send(JSON.stringify({ event: "join_room", room_id: roomInputCode }))
                 });
+                socket.addEventListener("error", (e)=>{
+                    joinLoadingText.style.setProperty("color", "red");
+                    joinLoadingText.style.setProperty("display", "block", "important");
+                    joinLoadingText.innerText = "Something went wrong!";
+                })
             }
         })
     })
@@ -92,11 +110,14 @@ const _listen_socket_events = (socket) => {
                 const createRoomBtn = document.querySelector("#inspex-create-room");
                 createRoomBtn.style.setProperty("display", "none");
                 const connectedText = document.querySelector("#inpsex-room-code-loading");
-                connectedText.innerHTML = "Connected";
+                connectedText.innerHTML = "Connected | Room ID:-"+room_id;
                 connectedText.style.setProperty("display", "block");
                 connectedText.style.setProperty("color", "#4BB543")
                 const joinRoomBtn = document.querySelector("#inspex-join-room");
                 joinRoomBtn.style.setProperty("display", "none");
+                const joinLoadingText = document.querySelector("#inspex-join-loading");
+                joinLoadingText.innerText = "";
+                joinLoadingText.style.setProperty("display", "none", "important");
             }
 
         } else if (data.event == "listen_change") {
@@ -185,6 +206,12 @@ const _listen_socket_events = (socket) => {
             const bodyWithoutScripts = bodyClone.innerHTML;
 
             socket.send(JSON.stringify({ event: "requested_dom", dom: bodyWithoutScripts, client_id: data.client_id, room_id }));
+        } else if(data.event == "error"){
+            if(data.statusCode == 404){
+                const joinLoadingText = document.querySelector("#inspex-join-loading");
+                joinLoadingText.style.setProperty("color", "red");
+                joinLoadingText.innerText = "Room ID Not Found";
+            }
         }
     });
 

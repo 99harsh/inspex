@@ -315,6 +315,10 @@
             background-color: #000;
         }
 
+        .inspex-footer-back-button{
+            margin-top: 10px;
+        }
+
         .inspex-generated-css-body {
             height: 300px;
         }
@@ -401,6 +405,16 @@
         }
         .inspex-join-button-container{
             padding-top: .5rem !important;
+        }
+
+        .inspex-join-loading-container{
+            padding-top: 10px !important;
+        }
+
+        #inspex-join-loading{
+            display: none;
+            color: #000;
+            font-size: 12px;
         }
     </style>
 </head>
@@ -521,6 +535,10 @@
             </div>
             <div class="inspex-join-button-container">
                 <button class="inspex-footer-button" id="inspex-join-room-btn">Join Code</button>
+                <button class="inspex-footer-button inspex-footer-back-button" id="inspex-back-button">Back</button>
+            </div>
+            <div class="inspex-join-button-container">
+                <span id="inspex-join-loading">Please Wait..</span>
             </div>
         </div>
 
