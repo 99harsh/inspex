@@ -88,7 +88,6 @@ const _populateInputElements = (supportingProperties, bodyContainer, domSelector
 
     const domSelectorStyles = getComputedStyle(domSelector);
     const unique_id = domSelector?.getAttribute("data-unique-id");
-    console.log("DOk", domSelector, unique_id)
     bodyContainer.innerHTML = "";
     if (supportingProperties?.length > 0) {
         const flexRowPalet = createDivWithClasses('inspex-flex-row inspex-palet');

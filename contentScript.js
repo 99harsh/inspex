@@ -50,7 +50,6 @@ const _init = () => {
                     return;
                 }
             }
-            console.log(lockId, unique_id)
             if(unique_id && lockId.includes(unique_id)){
                 return;
             }
@@ -74,7 +73,7 @@ const _init = () => {
             if (unique_id == null && !event.target.getAttribute("inspex-local-lock")) {
                 const prevLocalLock = document?.querySelector([`[inspex-local-lock="true"]`])
                 if (prevLocalLock) {
-                    console.log("Prev Selector", prevLocalLock.style);
+    
                     prevLocalLock.style.setProperty("outline", "none");
                     prevLocalLock.style.setProperty("cursor", "unset");
                     prevLocalLock.removeAttribute("inspex-local-lock");
@@ -91,7 +90,6 @@ const _init = () => {
                 else{
                     //document?.querySelector([`[data-unique-id="unique-le5mfhdbu"]`])
                     const prevLock = document?.querySelector([`[data-unique-id="${prevLockId}"]`]);
-                    console.log("PREV LOCK", prevLock, prevLockId);
                     if(prevLock){
                         prevLock.style.setProperty("cursor", "unset");
                         prevLock.style.setProperty("outline", "none");

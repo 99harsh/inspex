@@ -147,7 +147,6 @@ const _invokeInspexPopup = (event) => {
 
             const cssButton = document.querySelector("#inspex-copy-css");
             cssButton.addEventListener("click", (e) => {
-                console.log("CSS CLICKED", changedStyles)
                 const bodyContainer = document.querySelector(".inspex-body-container");
                 bodyContainer.style.display = "none";
 
