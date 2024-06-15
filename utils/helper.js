@@ -153,6 +153,7 @@ const createInput = (id, type) => {
 const makeDraggable = (element, mainContainer, action) => {
     let isDragging = false;
     let offsetX, offsetY;
+    const unique_id =  element.getAttribute("data-unique-id");
 
     // Function to handle mouse down event
     function handleMouseDown(event) {
@@ -171,6 +172,9 @@ const makeDraggable = (element, mainContainer, action) => {
             let y = event.clientY - offsetY;
             mainContainer.style.left = x + 'px';
             mainContainer.style.top = y + 'px';
+            if(action == "container" && isSocketConnected){
+                socket.send(JSON.stringify({event: "listen_change", room_id,unique_id, client_id, room_owner, styles: [{name: "left", style: x+"px"}, {name: "top", style: y+"px"}] }))
+            }
             if (action == "inspex-palet") {
                 localStorage.setItem("inspex-top", mainContainer.style.top)
                 localStorage.setItem("inspex-left", mainContainer.style.left)
